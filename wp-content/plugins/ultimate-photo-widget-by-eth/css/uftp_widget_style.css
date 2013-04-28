@@ -1,0 +1,78 @@
+/* The style of the Display Link below the images */
+.uftp-display-link{
+  width:100%;
+  text-align:center;
+  font-size:8pt; 
+  margin:3px 0 3px 0;
+}
+.uftp-image-link{
+  margin:0px;
+  border:0px;
+  padding:3px 0 3px 0;
+}
+.uftp-display-link-container{
+  display:block;
+  max-width:100%;
+}
+
+/* Global styles for the container and parent class */
+.uftp_container_class{
+  position:relative;
+  width:100%;
+  display:block;
+}
+
+.uftp_parent_class{
+  position:relative;
+  max-width:100%;
+}
+
+/* Styles specific to the images of each display style */
+.uftp-vertical-img{
+  position:relative;
+  width:100%;
+  margin:4px 0 0 0;
+  padding:0;
+  border:0;
+  outline:0;  
+}
+.uftp-vertical-link{
+  line-height:0;
+  display:block;
+}
+.uftp-tile-img{
+  width:100%;
+  margin:0;
+  padding:0;
+  border:0;
+  outline:0;
+}
+.uftp_slideshow_container_class{
+  position:absolute;
+  top:0px;
+  width:100%;
+}
+.uftp-slideshow-img{
+  width:100%;
+  margin:0;
+  padding:0;
+  border:0;
+  outline:0;
+}
+
+/* Style for the little corner link to ETH & KU */
+.uftp-by-link{
+  position:absolute;
+  bottom:0px;
+  left:0px;
+  display:block;
+  height:auto;
+  width:50px;
+  color:#C0C0C0;
+  padding:5px;
+  font-size:8px;
+  line-height:8px;
+  opacity:0.9;
+  filter:alpha(opacity=90);
+  text-align:left;
+}

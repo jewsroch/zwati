@@ -1,0 +1,34 @@
+div#fsg_header{
+    margin-bottom:30px;
+    overflow:hidden;
+}
+
+div#fsg_header img{
+    float:left;
+    margin:4px 8px 5px 0px;
+}
+
+div#fsg_body{
+    padding:0px 32px;
+}
+
+span.fsg-close{
+    float:right;
+    padding:8px 15px;
+}
+
+span.fsg-close a{
+    text-decoration:underline;
+}
+
+span.fsg_edit{
+    margin-left:50px;
+}
+
+div#fsg-preview-wrap{
+    text-align:center;
+}
+
+.size{
+    width:20%;
+}
