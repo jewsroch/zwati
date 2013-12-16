@@ -1,1 +1,0 @@
-<?php include("page.php"); /* Detect which to show on page.php */ ?>
