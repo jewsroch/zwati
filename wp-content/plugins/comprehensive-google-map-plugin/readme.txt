@@ -1,10 +1,10 @@
 === Comprehensive Google Map Plugin ===
 Contributors: alexanderzagniotov
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CWNZ5P4Z8RTQ8
-Tags: google map, google map widget, google map short code, google map short code, map widget, map short code, fusion tables, google fusion tables, google fusion queries, fully documented, marker, controls, size, KML, GPX, GeoRSS, location by latitude/longitude, location by address, info window, directions, traffic/bike lanes, cross browser, google maps v3, google, multiple markers, panoramio photos, marker icons, custom marker icons and text, geo, geo mashup, marker geo mashup, custom marker text, openstreetmap
-Requires at least: 3.3.2
-Tested up to: 3.3.2
-Stable tag: 7.0.31
+Tags: google map, google map widget, jquery tabs, google map short code, google map short code, map widget, map short code, fusion tables, google fusion tables, google fusion queries, fully documented, marker, controls, size, KML, GPX, GeoRSS, location by latitude/longitude, location by address, info window, directions, traffic/bike lanes, cross browser, google maps v3, google, multiple markers, panoramio photos, marker icons, custom marker icons and text, geo, geo mashup, marker geo mashup, custom marker text, openstreetmap
+Requires at least: 3.6
+Tested up to: 3.8
+Stable tag: 9.0.4.2
 
 A simple and intuitive,  yet elegant and fully documented Google map plugin that installs as a widget and a short code.
 
@@ -12,15 +12,17 @@ A simple and intuitive,  yet elegant and fully documented Google map plugin that
 
 A simple and intuitive, yet elegant and fully documented Google map plugin that installs as a widget and a short code. No limited plugin editions or limited functionality! This is the full version of this free and premium plugin, which comes packed with useful features: 
 
+* Compatible with jQuery tabs! No more poorly rendered map on your site!
 * Intuitive and user friendly interface, which makes it very easy to configure Google map. No complex configuration options. Facebook style interactive interface for managing multiple map markers. OpenStreetMap imagery available
 * With over 250 amazing custom marker icons to choose from!
 * Aggregate all your post markers in one map - Marker Geo Mashup!
 * Help tooltips enabled, which makes your configuration hassle free
+* Add end-user's current GPS location to the map! Useful for end-users that want to find directions from their current location to map's markers
 * Google-like directions: driving and walking, distance shown in miles or KM, avoid tolls and highways options, direction print functionality
 * Info window can display marker's street view within itself.
 * Plugin is fully documented. If help tooltips are not enough, you can always refer to the full documentation about each of the settings
-* Short-code builder available, which integrated with post/page editor. In other words, you do not need
-manually to type the short-code in the editor (But you can if you want to).
+* Shortcode builder available, which integrated with post/page editor. In other words, you do not need
+manually to type the shortcode in the editor, just save the shortcode and it will be available to you (But you can if you want to).
 * The plugin auto generates unique ID for each map. In other words - unlimited maps! You do not need to specify and maintain unique map
 IDs explicitly when dealing with multiple maps on the same post/page.
 * The plugin offers extensive configuration options for Google map marker, controls, size, KML files, location by latitude/longitude, location by address, info windows with custom text, traffic/bike lanes and more!
@@ -46,7 +48,6 @@ The plugin uses wonderful custom marker icons from the <a href="http://mapicons.
 * Alexander Zagniotov
 
 = Additional Contributors =
-* Colin 'Logan' Campbell-McPherson 
 * Honza Rameš 
 
 == Installation ==
@@ -77,6 +78,19 @@ Please revisit and reconfigure your widget or shortcode configuration. The map r
 5. Where is plugin documentation?<br />
 After plugin activation, look at the left hand side menu of WP admin, look for "Google Map" item
 
+6. Where to find my saved shortcode?<br />
+Look for little map icon in post/page WYSIWYG editor
+
+7. Do I lose my saved shortcodes after plugin update?<br />
+No, they will still be there
+
+8. Whats the correct way to define coordinates?
+You can use one of the following formats:
+[a] N43°38 19.39, W116°14 28.86 (Please note: single quote or apostrophe has been replaced with SPACE and no double quotes)
+[b] 43°38 19.39N, 116°14 28.86W
+[c] 43 38 19.39, -116 14 28.86
+[d] 43.6387194445, -116.2413513485235
+
 == Screenshots ==
 
 1. Help tooltip in action
@@ -90,6 +104,68 @@ After plugin activation, look at the left hand side menu of WP admin, look for "
 9. When having marker Geo mashup, you can display in the info bubble marker's original post and post content excerpt instead of normally address and lat/long
 
 == Changelog ==
+
+= 9.0.4.2 =
+* Enhancement: Documentation update and some code clean up
+
+= 9.0.4.1 =
+* Experimental: Increased waiting times between HTTP requests to Google's Geocoder service
+
+= 9.0.4 =
+* Bug: Mulitple maps on the same page were generated from the cached map data of the first map
+* Bug: Square brackets in marker description were breaking WordPress shortcode parsing functionality
+* Enhancement: Added ability to save shortcodes by name and load them up/delete them in Wordpress's post/page WYSIWYG editor
+* Enhancement: Added more debug data for cases when GeoMashup fails
+* Enhancement: Added "Support" tab in CGMP settings with user specific debug information
+* Cleanup: Removed deprecated shortcode properties
+
+= 9.0.3 =
+* Experimental: Trying to improve caching mechanism
+
+= 9.0.2 =
+* Enhancement: Added caching mechanism to shortcode and widget functionality
+
+= 9.0.1 =
+* Enhancement: Added caching mechanism to GeoMashup functionality
+
+= 9.0.0 =
+* Enhancement: Doing server side geo address validation using Google's service to reduce the work on the client side
+* Enhancement: Revisited GeoMashup functionality
+* Bug: Markers were disappearing in GeoMashup as a result of Google's geo service returning OVER_QUERY_LIMIT during address validation when too many requests per second were sent. Some basic request throttling and retry mechanism have been put in place to remedy requests-per-second
+
+= 8.0.5.1 =
+* Enhancement: Revisited workaround of the conflict between the plugin and jQuery tabs. Now resizing the map the moment placeholder DIV is not hidden
+
+= 8.0.5 =
+* Bug: When Geo position could not be obtained, map was not rendering
+* Bug: Workaround the conflict between the plugin and jQuery tabs
+
+= 8.0.4 =
+* Enhancement: Making use of the library by Chad Killingsworth to add end-user's current GPS location as a marker. The marker position is automatically updated as the user position changes. Useful for users on mobile devices that want to find directions from their current location to map's marker. This feature  will function in browsers supporting the W3C Geolocation API. This excludes Internet Explorer versions 8 and older.
+* Enhancement: CSS tweaks in directions dialog
+
+= 8.0.3 =
+* Enhancement: Made sure the plugin is compatible with jQuery 1.9+ (.live() -> .on(), .attr() -> .prop() where required)
+
+= 8.0.2 =
+* Enhancement: Added Dutch translation (Jeffrey van Rossum)
+* Enhancement: Added ability to select default distance units for directions
+* Bug: Shortcode sent to editor had “addmarkermashupbubble” property generate twice
+* Bug: Removed incorrect CSS property value
+* Bug: Fixed IDs of direction HTML elements
+* Bug: In jQuery 1.8, the behaviour of .ajaxSuccess() changed, which caused an issue when saving widgets
+* Bug: When trying to print directions in KM, the print view was showing miles
+* Experimental: An attempt to resolve a problem of Google Maps & jQuery Tabs: resizing the map one second after it has been loaded
+
+= 8.0.1 =
+* Bug: Commented out on PHP function parsing the shortcode and rendering a map  
+
+= 8.0.0 =
+* Enhancement: Added Polish translation (Jakub Korzeniewski)
+* Fix javascript bug that mishandles minor version number on jQuery 1.xx (Israel Shirk)
+* Php warnings removed, when in wp_debug mode (Patrick Hafner)
+* Using sprintf for html output in a few lines (Patrick Hafner)
+* IE Quirks mode fix: Making the function return rather than echo to prevent tags from outputting before the and tags. This causes IE to render the document in quirks mode which basically will destroy any modern sites styling. This occurs when using the shortcode because the function just echos out the content before the rest of the site is rendered.
 
 = 7.0.31 =
 * Missing files for v7.0.30

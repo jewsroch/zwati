@@ -3,7 +3,7 @@ Contributors: Dourou
 Tags: flickr, flickr sets, flickr slideshows, flickr photoset slideshows, flickr photosets
 Requires at least: 3.3.0
 Tested up to: 3.5
-Stable tag: 0.5
+Stable tag: 0.6
 License: GPLv2 or later
 
 The quick and easy way to embed native Flickr slideshows of your Flickr photosets in your posts and pages.
@@ -43,10 +43,10 @@ See [`Plugin Setup`](http://wordpress.org/extend/plugins/flickr-set-slideshows/o
 
 = I've installed the plugin. What now? =
 You need to link it to your Flickr account. To do this, go to your Wordpress dashboard. Go to **`Settings` > `Flickr set slideshows`**.
-Enter your Flickr username and a Flickr API key.
+Enter your Flickr screen name and a Flickr API key.
 
-= What is my Flickr username exactly? =
-It's the name that appears in the top right-hand corner of the screen when you are logged in to Flickr (`Signed in as...`).
+= What is my Flickr screen name? =
+You can find your screen name on your Flickr account/settings page, [`http://www.flickr.com/account`](http://www.flickr.com/account "Flickr account or settings page"), under 'Your screen name'.
 
 = How do I get an API key =
 The following Youtube video explains how to get an API key for the Flickr Set Slideshows plugin: [http://www.youtube.com/watch?v=Lq1XRx6dsDU](http://www.youtube.com/watch?v=Lq1XRx6dsDU "Youtube video on how to obtain a Flickr API key")
@@ -66,6 +66,9 @@ Just send an email to info at majweb dot co dot uk
 4. Slideshow listing and edition page.
 
 == Changelog ==
+
+= 0.6 =
+* updated FAQ to accommodate changes in Flickr vocabulary
 
 = 0.5 =
 * updated gallery code to repair incompatibility with some themes
@@ -89,11 +92,11 @@ Fixed bug. It's always better to upgrade!
 == Plugin Setup ==
 To link the plugin to your Flickr account:
 
-1. Get your Flickr username; that is the name that appears in the top right-hand corner of the screen when you are logged in to Flickr (`Signed in as...`),
+1. Get your Flickr screen name; You can find your screen name on your Flickr account page [`http://www.flickr.com/account`](http://www.flickr.com/account "Flickr account or settings page"), under 'Your screen name',
 2. Get a Flickr API Key; the following Youtube video will tell you how: [http://www.youtube.com/watch?v=Lq1XRx6dsDU](http://www.youtube.com/watch?v=Lq1XRx6dsDU "Youtube video on how to obtain a Flickr API key")
 3. Go to your Wordpress dashboard,
 4. Go to **`Settings` > `Flickr set slideshows`**,
-5. Enter your Flickr username and API key,
+5. Enter your Flickr screen name and API key,
 6. Click `Save changes`
 
 The plugin is now ready to use.

@@ -45,7 +45,7 @@ function register_fsg_options(){
 			  'flickr_set_galleries_options' //options page name
 			 );
     add_settings_field( 'flickr_username_field' , //field id
-		        'Flickr Username:' , //options label
+		        'Flickr screen name:' , //options label
 		        'flickr_username_field_html' , //function to output HTML
 		        'flickr_set_galleries_options' , //options page name
 		        'fsg_option_main' //settings section handler
@@ -165,12 +165,12 @@ function fsg_validation_notice(){
 	if ( $fsg_options['fsg_error'] ) {
         	switch ( $fsg_options['fsg_error'] ) {
 		    case 'inv_username':
-			echo '<div id="message" class="error fade"><p><strong>Sorry, this is not a valid Flickr username.</strong></p></div>';
+			echo '<div id="message" class="error fade"><p><strong>Sorry, this is not a valid Flickr screen name.</strong></p></div>';
 		    break;
 		    case 'not_found':
-			echo '<div id="message" class="error fade"><p><strong>This username was not found on flickr. Please check you typed it correctly.</strong></p>
+			echo '<div id="message" class="error fade"><p><strong>This screen name was not found on flickr. Please check you typed it correctly.</strong></p>
 			<p>If you have just created your flickr account, please wait for a while, it might not be fully registered yet.</p>
-			<p>Remind me <a href="http://majweb.co.uk/services/flickr-set-slideshows-for-wordpress#FAQ" target="_blank">what a flickr username is</a> again?</p></div>';
+			<p>Remind me <a href="http://majweb.co.uk/services/flickr-set-slideshows-for-wordpress#FAQ" target="_blank">what a flickr screen name is</a> again?</p></div>';
 		    break;
 		    case 'inv_api_key':
 			echo '<div id="message" class="error fade"><p><strong>This API key is not valid. Please check you typed it correctly.</strong></p>

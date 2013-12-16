@@ -15,12 +15,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+var CGMPGlobal = {};
 var jQueryCgmp = jQuery.noConflict();
 
 function sendShortcodeToEditor(container_id) {
 	(function ($) {
 		var id = '#' + container_id;
-		var code = buildShortcode(id, $);
+		var code = buildShortcode(id, muid(), $);
 		send_to_editor('<br />' + code + '<br />');
 	}(jQueryCgmp));
 }
@@ -29,19 +30,19 @@ function sendShortcodeToEditor(container_id) {
 function displayShortcodeInPopup(container_id) {
 	(function ($) {
 		var id = '#' + container_id;
-		var code = buildShortcode(id, $);
-		var content = "Select the generated shortcode text below including the square brackets and press CTRL+C (CMMND+C on Mac) to copy:<br /><br /><div id='inner-shortcode-dialog'><b>" 
-			+ code + "</b></div><br /><br />Paste the copied text into your post/page";
-		displayPopupWithContent(content, $);
+		var code = buildShortcode(id, "TO_BE_GENERATED", $);
+		var content = "Upon saving, the shortcode will be available to you in post/page WYSIWYG editor -<br />just look for the map icon in the editor panel<br /><br /><div id='inner-shortcode-dialog'><b>"
+			+ code + "</b></div><br />";
+		displayPopupWithContent(content, code, $);
 	}(jQueryCgmp));
 }
 
-function displayPopupWithContent(content, $)  {
+function displayPopupWithContent(content, code, $)  {
 
 		var mask = $('<div id="cgmp-popup-mask"/>');
 		var id = Math.random().toString(36).substring(3);
 		var shortcode_dialog = $('<div id="' + id + '" class="cgmp-popup-shortcode-dialog cgmp-popup-window">');
-		shortcode_dialog.html("<div class='dismiss-container'><a class='dialog-dismiss' href='javascript:void(0)'>×</a></div><p style='padding: 10px 10px 0 10px'>" + content + "</p><div align='center'><input type='button' class='close-dialog' value='Close' /></div>");
+		shortcode_dialog.html("<div class='dismiss-container'><a class='dialog-dismiss' href='javascript:void(0)'>×</a></div><p style='padding: 10px 10px 0 10px'>" + content + "</p><div align='center'><input type='button' class='save-dialog' value='Save' /></div>");
 
 		$('body').append(mask);
 		$('body').append(shortcode_dialog);
@@ -59,8 +60,19 @@ function displayPopupWithContent(content, $)  {
 		$("div#" + id).css('top',  winH/2-$("div#" + id).height()/2);
 		$("div#" + id).css('left', winW/2-$("div#" + id).width()/2);
 		$("div#" + id).fadeIn(500); 
-		$('.cgmp-popup-window .close-dialog').click(function (e) {
-			close_dialog(e, $(this));
+		$('.cgmp-popup-window .save-dialog').click(function (e) {
+
+            var title = $("input#shortcode-title").val();
+            if (typeof title === "undefined" || title.replace(/^\s+|\s+$/g, '') === "") {
+                title = "Nameless";
+            }
+            title = title.replace(new RegExp("'", "g"), "");
+			$("input#hidden-shortcode-title").val(title);
+
+            code = code.replace(new RegExp("'", "g"), "");
+			$("input#hidden-shortcode-code").val(code);
+
+            $("form#shortcode-save-form").submit();
 		});
 		$('.cgmp-popup-window .dialog-dismiss').click(function (e) {
 			 close_dialog(e, $(this));
@@ -95,41 +107,50 @@ function displayPopupWithContent(content, $)  {
 		});
 }
 
-function buildShortcode(id, $) {
-	var code = "[google-map-v3 ";
+function muid() {
+    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) + "" + Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+}
+
+function buildShortcode(id, shortcodeId, $) {
+	var used_roles = {};
+	var code = "[google-map-v3 shortcodeid=\"" + shortcodeId + "\" ";
 	$(id + ' .shortcodeitem').each(function() {
-	
 		var role = $(this).attr('role');
 		var val =  $(this).val();
 
-		if (role == 'addmarkerlisthidden') {
-			val = $('<div />').text(val).html();
+		if (role === 'addmarkerlisthidden') {
+			val = $('<div />').text(val).html(); // from text to HTML
 			val = val.replace(new RegExp("'", "g"), "");
 			val = val.replace(new RegExp("\"", "g"), "");
+            val = val.replace(new RegExp("\\[|\\]", "g"), "");
 		}
 
-		if ($(this).attr('type') == "checkbox") {
+		if ($(this).attr('type') === "checkbox") {
 			val = $(this).is(":checked");
 		}
 
-		if ($(this).attr('type') == "radio") {
+		if ($(this).attr('type') === "radio") {
 			var name = $(this).attr('name');
 			val = $('input[name=' + name + ']:checked').val();
 			role = name;
 		}
 	
-		if (role == null || typeof role == "undefined" || role == "undefined") {
+		if (role === null || typeof role === "undefined" || role === "undefined") {
 			role = $(this).attr('id');
 		}
 
-		if (role != null && role != "" && val != null && val != "") {
+		if (role !== null && role !== "" && val !== null && val !== "") {
 
 			if (role.indexOf("_") > 0) {
 				role = role.replace(/_/g,"");
 			} if (role.indexOf("hidden") > 0) {
 				role = role.replace(/hidden/g,"");
 			}
-			code += role + "=" + "\"" + val + "\" ";
+		
+			if (used_roles[role] === null || typeof used_roles[role] === "undefined") {
+				used_roles[role] = role;
+				code += role + "=" + "\"" + val + "\" ";
+			}
 		}
 	});
 	code = code.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
@@ -140,8 +161,6 @@ function buildShortcode(id, $) {
 
 (function ($) {
 
-	var CGMPGlobal = {};
-
 	CGMPGlobal.sep = $("object#global-data-placeholder param#sep").val();
 
 	if (CGMPGlobal.sep == null || CGMPGlobal.sep == "undefined") {
@@ -150,6 +169,9 @@ function buildShortcode(id, $) {
 	CGMPGlobal.customMarkersUri = $("object#global-data-placeholder param#customMarkersUri").val();
 	CGMPGlobal.defaultLocationText = $("object#global-data-placeholder param#defaultLocationText").val();
 	CGMPGlobal.defaultBubbleText = $("object#global-data-placeholder param#defaultBubbleText").val();
+    CGMPGlobal.assets = $("object#global-data-placeholder param#assets").val();
+    CGMPGlobal.version = $("object#global-data-placeholder param#version").val();
+    CGMPGlobal.shortcodes = $("object#global-data-placeholder param#shortcodes").val();
 
 	var lists = [];
 
@@ -181,7 +203,7 @@ function buildShortcode(id, $) {
 
 		function initMarkerInputDataFieldsEvent()  {
 
-			$("input.marker-text-details").live("focus", function () {
+            $(document).on("focus", "input.marker-text-details", function () {
 
 				if ($(this).val().indexOf("Enter marker") != -1) {
 					$(this).val("");
@@ -191,7 +213,7 @@ function buildShortcode(id, $) {
 				}
 			});
 
-			$("input.marker-text-details").live("blur", function () {
+            $(document).on("blur", "input.marker-text-details", function () {
 				var value = $(this).val().replace(/^\s+|\s+$/g, '');
 				if (value == "") {
 
@@ -210,7 +232,7 @@ function buildShortcode(id, $) {
 
 		function initAddLocationEevent()  {
 
-			$("input.add-additonal-location").live("click", function (source) {
+            $(document).on("click", "input.add-additonal-location", function (source) {
 
 				var listId = $(this).attr("id") + "list";
 				var tokenList = {};
@@ -250,7 +272,7 @@ function buildShortcode(id, $) {
 
 						$(customIconListId + " img#default-marker-icon").attr("style", "cursor: default; ");
 						$(customIconListId + " img#default-marker-icon").addClass('selected-marker-image');
-						$(customIconListId + " input#default-marker-icon-radio").attr('checked', 'checked');
+						$(customIconListId + " input#default-marker-icon-radio").prop('checked', true);
 
 						$(iconHolderInput).attr("style", "");
 						$(iconHolderInput).addClass("default-marker-icon");
@@ -297,19 +319,19 @@ function buildShortcode(id, $) {
 
 		function initMarkerIconEvents() {
 
-			$("div.custom-icons-placeholder a img").live("click", function () {
+            $(document).on("click", "div.custom-icons-placeholder a img", function () {
 				var currentSrc = $(this).attr('src');
 				if (currentSrc != null) {
 
 					var parentDiv = $(this).closest("div.custom-icons-placeholder");
 					resetPreviousIconSelection(parentDiv);
-					$(this).parent("a").siblings('input[name="custom-icons-radio"]').attr("checked", "checked");
+					$(this).parent("a").siblings('input[name="custom-icons-radio"]').prop("checked", true);
 					doMarkerIconUpdateOnSelection(parentDiv, $(this));
 				}
 			});
 
 
-			$("input[name='custom-icons-radio']").live("click", function () {
+            $(document).on("click", "input[name='custom-icons-radio']", function () {
 
 				var img = $(this).siblings("a").children('img');
 				var currentSrc = $(img).attr('src');
@@ -329,14 +351,14 @@ function buildShortcode(id, $) {
 			var currentSrc = $(img).attr('src');
 			var inputId = $(parentDiv).attr("id").replace("icons", "input");
 			$("#" + inputId).attr("style", "background: url('" + currentSrc + "') no-repeat scroll 0px 0px transparent !important");
-			$("#" + inputId).attr("readonly", "readonly");
+			$("#" + inputId).prop("readonly", true);
 			$("#" + inputId).removeClass("default-marker-icon");
 			//$("#" + inputId).focus();
 		}
 
 		function initTooltips()  {
 
-			$('a.google-map-tooltip-marker').live("hover", function() {
+            $(document).on("hover", 'a.google-map-tooltip-marker', function() {
 			var tooltip_marker_id = $(this).attr('id');
 
 				$("a#" + tooltip_marker_id + "[title]").tooltip({
@@ -349,7 +371,7 @@ function buildShortcode(id, $) {
 					}
 				});
 
-				$("a#" + tooltip_marker_id).live("mouseout", function(event) {
+                $(document).on("mouseout", "a#" + tooltip_marker_id, function(event) {
 					if ($(this).data('tooltip')) {
 						$(this).data('tooltip').hide();
 					}
@@ -359,7 +381,7 @@ function buildShortcode(id, $) {
 
 		function initGeoMashupEvent() {
 
-			$("input.marker-geo-mashup").live("change", function (source) {
+            $(document).on("change", "input.marker-geo-mashup", function (source) {
 				var checkboxId = $(this).attr("id");
 				var customIconsId = checkboxId.replace("mashup", "icons");
 				var kmlId = checkboxId.replace("addmarkermashup", "kml");
@@ -396,6 +418,31 @@ function buildShortcode(id, $) {
 			});
 		}
 
+        function initGPSMarkerEvent() {
+
+            $(document).on("change", "input.gps-location-marker", function (source) {
+                var checkboxId = $(this).attr("id");
+
+                if ($(this).is(":checked")) {
+                    $("#" + checkboxId + "hidden").val("true");
+                } else {
+                    $("#" + checkboxId + "hidden").val("false");
+                }
+            });
+        }
+
+        function checkedGPSMarkerOnInit() {
+            $.each($("input.gps-location-marker"), function() {
+                var checkboxId = $(this).attr("id");
+                var hiddenIdVal = $("#" + checkboxId + "hidden").val();
+                if (hiddenIdVal === "true") {
+                    $(this).prop("checked", true);
+                } else {
+                    $(this).removeAttr("checked");
+                }
+            });
+        }
+
 
 		$(document).ready(function() {
 			initTokenHolders();
@@ -403,6 +450,8 @@ function buildShortcode(id, $) {
 			initMarkerInputDataFieldsEvent();
 			initTooltips();
 			initMarkerIconEvents();
+            checkedGPSMarkerOnInit();
+            initGPSMarkerEvent();
 			checkedGeoMashupOnInit();
 			initGeoMashupEvent() ;
 
@@ -415,14 +464,15 @@ function buildShortcode(id, $) {
 		});
 
 
-		$('div.widget-google-map-container').ajaxSuccess(
+		$(document).ajaxSuccess(
 			function (e, x, o) {
-				if (o.data != null)	{
-					var indexOf = o.data.indexOf('id_base=comprehensivegooglemap');
-					if (indexOf > 0) {
-						initTokenHolders();
-						checkedGeoMashupOnInit();
-					}
+				if (o != null && o.data != null)	{
+                    var indexOf = o.data.indexOf('id_base=comprehensivegooglemap');
+                    if (indexOf > 0) {
+                        initTokenHolders();
+                        checkedGPSMarkerOnInit();
+                        checkedGeoMashupOnInit();
+                    }
 				}
 			}
 		);

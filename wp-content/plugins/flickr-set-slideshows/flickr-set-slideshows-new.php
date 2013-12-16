@@ -100,7 +100,7 @@ function get_photosets(){
     if ( $response->stat == 'fail' ) {
 	switch ( $response->code ) {
 	    case 1:
-		$result[0] = 'User not found. Please try again later or check your flickr username in the settings.';
+		$result[0] = 'User not found. Please try again later or check your flickr screen name in the settings.';
 	    break;
 	    case 100:
 		$result[0] = 'Ivalid API key. Please check your API key in the settings.';

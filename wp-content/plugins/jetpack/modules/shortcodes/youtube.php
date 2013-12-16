@@ -116,6 +116,7 @@ function youtube_link_callback( $matches ) {
  * @param string $url
  * @return string The normalized URL
  */
+if ( !function_exists( 'youtube_sanitize_url' ) ) :
 function youtube_sanitize_url( $url ) {
 	$url = trim( $url, ' "' );
 	$url = trim( $url );
@@ -130,6 +131,7 @@ function youtube_sanitize_url( $url ) {
 
 	return $url;
 }
+endif;
 
 /*
  * url can be:
@@ -153,6 +155,7 @@ function jetpack_shortcode_get_youtube_id( $url ) {
  * @param $url Can be just the $url or the whole $atts array
  * @return bool|mixed The Youtube video ID
  */
+if ( !function_exists( 'get_youtube_id' ) ) :
 function get_youtube_id( $url ) {
 
 	// Do we have an $atts array?  Get first att
@@ -179,6 +182,7 @@ function get_youtube_id( $url ) {
 
 	return $id;
 }
+endif;
 
 /**
  * Converts a YouTube URL into an embedded YouTube video.
@@ -246,6 +250,7 @@ function youtube_id( $url ) {
 
 	$fmt =    ( isset( $qargs['fmt'] )            && intval( $qargs['fmt'] )       ) ? '&fmt=' . (int) $qargs['fmt']     : '';
 	$start =  ( isset( $qargs['start'] )          && intval( $qargs['start'] )     ) ? '&start=' . (int) $qargs['start'] : '';
+	$end =    ( isset( $qargs['end'] )            && intval( $qargs['end'] )       ) ? '&end=' . (int) $qargs['end'] : '';
 	$hd =     ( isset( $qargs['hd'] )             && intval( $qargs['hd'] )        ) ? '&hd=' . (int) $qargs['hd']       : '';
 
 	$wmode =  ( isset( $qargs['wmode'] ) && in_array( strtolower( $qargs['wmode'] ), array( 'opaque', 'window', 'transparent' ) ) ) ? $qargs['wmode'] : 'transparent';
@@ -274,7 +279,7 @@ function youtube_id( $url ) {
 	if ( ( isset( $url['path'] ) && '/videoseries' == $url['path'] ) || isset( $qargs['list'] ) ) {
 		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "$protocol://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) . "' frameborder='0'></iframe></span>";
 	} else {
-		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "$protocol://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$hd&wmode=$wmode$autoplay" ) . "' frameborder='0'></iframe></span>";
+		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "$protocol://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$autoplay" ) . "' frameborder='0'></iframe></span>";
 	}
 
 	$html = apply_filters( 'video_embed_html', $html );

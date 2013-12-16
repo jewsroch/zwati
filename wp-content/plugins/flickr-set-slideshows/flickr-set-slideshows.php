@@ -3,7 +3,7 @@
 Plugin Name: Flickr Set Slideshows
 Plugin URI: http://majweb.co.uk/services/flickr-set-slideshows-for-wordpress
 Description: Lets you easily embed slideshows of your flickr sets in your posts and pages.
-Version: 0.5
+Version: 0.6
 Author: Marie Manandise, MAJWeb
 Author URI: http://majweb.co.uk
 License: GPL2

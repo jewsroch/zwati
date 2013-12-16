@@ -1,10 +1,27 @@
-[ { "CGMP_DB_OPTION_NAME" : "cgmp_marker_locations",
+[ {
     "CGMP_DB_POST_COUNT" : "cgmp_total_published_posts",
     "CGMP_DB_PUBLISHED_POST_MARKERS" : "cgmp_published_post_markers",
 	"CGMP_DB_PUBLISHED_POST_IDS" : "cgmp_published_post_ids",
 	"CGMP_DB_PUBLISHED_PAGE_IDS" : "cgmp_published_page_ids",
-	"CGMP_DB_GEOMASHUP_CONTENT" : "cgmp_geomashup_content",
 	"CGMP_DB_PURGE_GEOMASHUP_CACHE" : "cgmp_purge_geomashup_cache",
+
+
+    "CGMP_ALL_MAP_CACHED_CONSTANTS_PREFIX" : "cgmp_cache_",
+
+    "CGMP_MAP_CACHE_POST_PREFIX" : "cgmp_cache_post_",
+    "CGMP_MAP_CACHE_POST_TIME_PREFIX" : "cgmp_cache_time_post_",
+
+    "CGMP_MAP_CACHE_PAGE_PREFIX" : "cgmp_cache_page_",
+    "CGMP_MAP_CACHE_PAGE_TIME_PREFIX" : "cgmp_cache_time_page_",
+
+    "CGMP_MAP_CACHE_WIDGET_PREFIX" : "cgmp_cache_widget_map_",
+    "CGMP_MAP_CACHE_WIDGET_TIME_PREFIX" : "cgmp_cache_time_widget_map_",
+
+    "CGMP_DB_GEOMASHUP_DATA_CACHE" : "cgmp_cache_mashup_map",
+    "CGMP_DB_GEOMASHUP_DATA_CACHE_TIME" : "cgmp_cache_time_mashup_map",
+
+
+    "CGMP_PERSISTED_SHORTCODES" : "cgmp_persisted_shortcodes",
     "CGMP_DB_SELECTED_LANGUAGE" : "cgmp_selected_language",
     "CGMP_DB_SETTINGS_BUILDER_LOCATION" : "cgmp_settings_builder_location",
 	"CGMP_DB_SETTINGS_CUSTOM_POST_TYPES" : "cgmp_settings_custom_post_types",
@@ -25,11 +42,14 @@
     "CGMP_HTML_TEMPLATE_PLUGIN_SETTINGS_PAGE" : "plugin_settings_page.tpl",
     "CGMP_HTML_TEMPLATE_WIDGET" : "widget.tpl",
     "CGMP_HTML_TEMPLATE_WIDGET_FORM_TITLE" : "widget_form_title.tpl",
+    "CGMP_HTML_TEMPLATE_SHORTCODE_BUILDER_FORM_TITLE" : "shortcode_builder_form_title.tpl",
+    "CGMP_HTML_TEMPLATE_SHORTCODE_BUILDER_HTML_FORM" : "shortcode_builder_html_form.tpl",
     "CGMP_JSON_DATA_DEFAULT_WIDGET_PARAM_VALUES" : "default.widget.params.values.json",
     "CGMP_JSON_DATA_HTML_ELEMENTS_DOCO_PARAMS" : "html.elements.doco.params.json",
     "CGMP_JSON_DATA_HTML_ELEMENTS_FORM_PARAMS" : "html.elements.form.params.json",
     "CGMP_JSON_DATA_HTML_GLOBAL_ERROR_MESSAGES" : "html.global.error.messages.json",
     "CGMP_NAME" : "cgmp",
+    "CGMP_NO_BUBBLE_DESC" : "No description provided",
     "CGMP_PLUGIN_ASSETS_DIR" : "CGMP_PLUGIN_DIR/assets",
     "CGMP_PLUGIN_ASSETS_URI" : "CGMP_PLUGIN_URIassets",
     "CGMP_PLUGIN_CSS" : "CGMP_PLUGIN_URIassets/css",
@@ -41,5 +61,7 @@
     "CGMP_PLUGIN_INCLUDE_DIR" : "CGMP_PLUGIN_DIR/include",
     "CGMP_PLUGIN_JS" : "CGMP_PLUGIN_URIassets/js",
     "CGMP_SEP" : "{}",
-    "CGMP_VERSION" : "7.0.31"
+    "CGMP_GEOSERVICE_THROTTLING_IN_MICROS" : 150000,
+    "CGMP_GEO_VALIDATION_CLIENT_REVALIDATE" : "REVALIDATE",
+    "CGMP_VERSION" : "9.0.4.2"
   } ]

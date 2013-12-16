@@ -1,21 +1,10 @@
 <?php
 
-function menu_alter() {
-    echo '
-	<style>
-	#menu-posts-feedback .wp-menu-image img { display: none; }
-	#adminmenu .menu-icon-feedback:hover div.wp-menu-image, #adminmenu .menu-icon-feedback.wp-has-current-submenu div.wp-menu-image, #adminmenu .menu-icon-feedback.current div.wp-menu-image { background: url("' .GRUNION_PLUGIN_URL . 'images/grunion-menu-hover.png") no-repeat 7px 7px !important; }
-	#adminmenu .menu-icon-feedback div.wp-menu-image, #adminmenu .menu-icon-feedback div.wp-menu-image, #adminmenu .menu-icon-feedback div.wp-menu-image { background: url("' . GRUNION_PLUGIN_URL . 'images/grunion-menu.png") no-repeat 7px 7px !important; }
-	.grunion-menu-button { background: url("' . GRUNION_PLUGIN_URL . 'images/grunion-form.png") no-repeat; width: 13px; height: 13px; display: inline-block; vertical-align: middle; ) }
-	@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
-	    #adminmenu .menu-icon-feedback:hover div.wp-menu-image, #adminmenu .menu-icon-feedback.wp-has-current-submenu div.wp-menu-image, #adminmenu .menu-icon-feedback.current div.wp-menu-image { background: url("' .GRUNION_PLUGIN_URL . 'images/grunion-menu-hover-2x.png") no-repeat 7px 7px !important; background-size: 15px 16px !important; }
-		#adminmenu .menu-icon-feedback div.wp-menu-image, #adminmenu .menu-icon-feedback div.wp-menu-image, #adminmenu .menu-icon-feedback div.wp-menu-image { background: url("' . GRUNION_PLUGIN_URL . 'images/grunion-menu-2x.png") no-repeat 7px 7px !important; background-size: 15px 16px !important; }
-	    .grunion-menu-button { background-image: url("' . GRUNION_PLUGIN_URL . 'images/grunion-form-2x.png"); background-size: 13px 12px !important; vertical-align: bottom; }
-	}
-	</style>';
+function grunion_menu_alter() {
+	wp_enqueue_style( 'grunion-menu-alter', plugins_url( 'css/menu-alter.css', __FILE__ ) );
 }
 
-add_action('admin_head', 'menu_alter');
+add_action( 'admin_enqueue_scripts', 'grunion_menu_alter' );
 
 /**
  * Add a contact form button to the post composition screen
@@ -27,8 +16,13 @@ function grunion_media_button( ) {
 	$title = esc_attr( __( 'Add a custom form', 'jetpack' ) );
 	$plugin_url = esc_url( GRUNION_PLUGIN_URL );
 	$site_url = esc_url( admin_url( "/admin-ajax.php?post_id={$iframe_post_id}&action=grunion_form_builder&TB_iframe=true&width=768" ) );
+	?>
 
-	echo '<a href="' . $site_url . '&id=add_form" class="thickbox" title="' . $title . '"><div class="grunion-menu-button" alt="' . $title . '"></div></a>';
+	<a id="insert-jetpack-contact-form" class="button thickbox" title="<?php esc_html_e( 'Add Contact Form', 'jetpack' ); ?>" data-editor="content" href="<?php echo $site_url ?>&id=add_form">
+		<span class="jetpack-contact-form-icon"></span> <?php esc_html_e( 'Add Contact Form', 'jetpack' ); ?>
+	</a>
+
+	<?php
 }
 
 add_action( 'wp_ajax_grunion_form_builder', 'display_form_view' );
@@ -42,14 +36,14 @@ function display_form_view() {
 add_action( 'admin_print_styles', 'grunion_admin_css' );
 function grunion_admin_css() {
 	global $current_screen;
-	if ( 'edit-feedback' != $current_screen->id )
+	if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'jetpack_page_omnisearch', 'dashboard_page_omnisearch' ) ) )
 		return;
 
 	wp_enqueue_script( 'wp-lists' );
 ?>
 
 <style type='text/css'>
-.add-new-h2, .view-switch, body.no-js .tablenav select[name^=action], body.no-js #doaction, body.no-js #doaction2 { 
+.add-new-h2, .view-switch, body.no-js .tablenav select[name^=action], body.no-js #doaction, body.no-js #doaction2 {
 	display: none
 }
 
@@ -190,8 +184,8 @@ function grunion_admin_view_tabs( $views ) {
 
 	preg_match( '|post_type=feedback\'( class="current")?\>(.*)\<span class=|', $views['all'], $match );
 	if ( !empty( $match[2] ) )
-		$views['all'] = str_replace( $match[2], 'Messages ', $views['all'] );
-	
+		$views['all'] = str_replace( $match[2], __( 'Messages', 'jetpack' ) . ' ', $views['all'] );
+
 	return $views;
 }
 
@@ -336,7 +330,7 @@ jQuery(document).ready( function($) {
 			function( r ) {
 				$('#post-<?php echo $post_id; ?>')
 					.css( {backgroundColor:'#FF7979'} )
-					.fadeOut(350, function() { 
+					.fadeOut(350, function() {
 						$(this).remove();
 						$('.subsubsub').html(r);
 				});
@@ -394,7 +388,7 @@ jQuery(document).ready( function($) {
 			function( r ) {
 				$('#post-<?php echo $post_id; ?>')
 					.css( {backgroundColor:'#59C859'} )
-					.fadeOut(350, function() { 
+					.fadeOut(350, function() {
 						$(this).remove();
 						$('.subsubsub').html(r);
 				});
@@ -408,7 +402,12 @@ jQuery(document).ready( function($) {
 			break;
 
 		case 'feedback_date':
-			echo get_the_date( __( 'Y-m-d @ g:i:s A', 'jetpack' ) );
+
+			$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
+			$date_time_format = sprintf( $date_time_format, get_option( 'date_format' ), get_option( 'time_format' ) );
+			$time = date_i18n( $date_time_format, get_the_time( 'U' ) );
+
+			echo $time;
 			break;
 	}
 }
@@ -473,7 +472,7 @@ function grunion_ajax_shortcode() {
 // and constructs a json object representing its contents and attributes
 function grunion_ajax_shortcode_to_json() {
 	global $post, $grunion_form;
-	
+
 	check_ajax_referer( 'grunion_shortcode_to_json' );
 
 	if ( !isset( $_POST['content'] ) || !is_numeric( $_POST['post_id'] ) ) {
@@ -583,7 +582,7 @@ function grunion_ajax_spam() {
 	$sql = "
 		SELECT post_status,
 			COUNT( * ) AS post_count
-		FROM `{$wpdb->posts}` 
+		FROM `{$wpdb->posts}`
 		WHERE post_type =  'feedback'
 		GROUP BY post_status
 	";
@@ -630,4 +629,13 @@ function grunion_ajax_spam() {
 
 	echo $status_html;
 	exit;
+}
+
+add_action( 'omnisearch_add_providers', 'grunion_omnisearch_add_providers' );
+function grunion_omnisearch_add_providers() {
+	// Feedback uses capability_type 'page'
+	if ( current_user_can( 'edit_pages' ) ) {
+		require_once( GRUNION_PLUGIN_DIR . '/grunion-omnisearch.php' );
+		new Jetpack_Omnisearch_Grunion;
+	}
 }

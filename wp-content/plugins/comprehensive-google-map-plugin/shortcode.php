@@ -25,6 +25,7 @@ if ( !function_exists('cgmp_shortcode_googlemap_handler') ):
 			}
 
 			$shortcode_attribs = shortcode_atts(array(
+                'shortcodeid' => -1,
 				'latitude' => 0,
 				'longitude' => 0,
 				'zoom' => '7',
@@ -40,6 +41,7 @@ if ( !function_exists('cgmp_shortcode_googlemap_handler') ):
 				'scrollwheelcontrol' => 'false',
 				'showbike' => 'false',
 				'bubbleautopan' => 'false',
+                'distanceunits' => 'miles',
 				'showtraffic' => 'false',
 				'showpanoramio' => 'false',
 				'addmarkerlist' => '',
@@ -47,6 +49,7 @@ if ( !function_exists('cgmp_shortcode_googlemap_handler') ):
 				'directionhint' => 'false',
 				'mapalign' => 'center',
 				'panoramiouid' => '',
+                'enablegeolocationmarker' => 'false',
 				'addmarkermashup' => 'false',
 				'language' => 'default',
 				'poweredby' => 'false',
@@ -56,20 +59,24 @@ if ( !function_exists('cgmp_shortcode_googlemap_handler') ):
 
 			extract($shortcode_attribs);
 
-			$id = md5(time().' '.rand()); 
+			$id = md5(time().' '.rand());
 
+            $map_data_properties = array();
 			$addmarkerlist = strip_tags($addmarkerlist);
+
 			if ($addmarkermashup == 'true') {
-				$addmarkerlist = make_marker_geo_mashup();
+                $json_data_arr = make_marker_geo_mashup_2();
+                $addmarkerlist = $json_data_arr["data"];
+                $map_data_properties["debug"] = $json_data_arr["debug"];
 			} else if ($addmarkermashup == 'false') {
 				$addmarkerlist = update_markerlist_from_legacy_locations($latitude, $longitude, $addresscontent, $addmarkerlist);
 				$addmarkerlist = htmlspecialchars($addmarkerlist);
 			}
+
 			$bad_entities = array("&quot;", "&#039;");
 			$addmarkerlist = str_replace($bad_entities, "", $addmarkerlist);
 			$addmarkerlist = cgmp_parse_wiki_style_links($addmarkerlist);
 
-			$map_data_properties = array();
 			$not_map_data_properties = array("title", "latitude", "longitude", "addresscontent", "addmarkerlist", "showmarker", 
 					"animation", "infobubblecontent", "markerdirections", "locationaddmarkerinput", "bubbletextaddmarkerinput");
 
@@ -84,6 +91,20 @@ if ( !function_exists('cgmp_shortcode_googlemap_handler') ):
 				}
 			}
 
+            if ($addmarkermashup == 'false' && trim($addmarkerlist) != "") {
+                global $post;
+                $post_type = $post->post_type;
+                $post_id = $post->ID;
+
+                if (is_numeric($shortcodeid) && $shortcodeid == -1) {
+                    $shortcodeid =  md5($addmarkerlist);
+                }
+
+                $json_data_arr = cgmp_get_post_page_cached_markerlist($shortcodeid, $post_id, $post_type, $addmarkerlist);
+                $addmarkerlist = $json_data_arr["data"];
+                $map_data_properties['debug'] = $json_data_arr["debug"];
+            }
+
 			$map_data_properties['id'] = $id;
 			$map_data_properties['markerlist'] = $addmarkerlist;
 
@@ -91,9 +112,8 @@ if ( !function_exists('cgmp_shortcode_googlemap_handler') ):
 			$map_data_properties['panoramiouid'] = cgmp_clean_panoramiouid($map_data_properties['panoramiouid']);
 
 			cgmp_set_google_map_language($language);
-			cgmp_map_data_injector(json_encode($map_data_properties), $id);
 
-			return cgmp_draw_map_placeholder($id, $width, $height, $mapalign, $directionhint, $poweredby);
+         return cgmp_draw_map_placeholder($id, $width, $height, $mapalign, $directionhint, $poweredby).cgmp_map_data_injector(json_encode($map_data_properties), $id);
 	}
 endif;
 

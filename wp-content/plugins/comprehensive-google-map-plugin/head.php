@@ -95,6 +95,14 @@ if ( !function_exists('cgmp_google_map_init_global_admin_html_object') ):
 			if (is_admin()) {
 				echo "<object id='global-data-placeholder' class='cgmp-data-placeholder'>".PHP_EOL;
 				echo "    <param id='sep' name='sep' value='".CGMP_SEP."' />".PHP_EOL;
+                echo "    <param id='version' name='version' value='".CGMP_VERSION."' />".PHP_EOL;
+                $persisted_shortcodes_json = get_option(CGMP_PERSISTED_SHORTCODES);
+                if (isset($persisted_shortcodes_json) && trim($persisted_shortcodes_json) != "" && is_array(json_decode($persisted_shortcodes_json, true))) {
+                    echo "    <param id='shortcodes' name='shortcodes' value='".$persisted_shortcodes_json."' />".PHP_EOL;
+                } else {
+                    echo "    <param id='shortcodes' name='shortcodes' value='".json_encode(array())."' />".PHP_EOL;
+                }
+                echo "    <param id='assets' name='assets' value='".CGMP_PLUGIN_ASSETS_URI."' />".PHP_EOL;
 				echo "    <param id='customMarkersUri' name='customMarkersUri' value='".CGMP_PLUGIN_IMAGES."/markers/' />".PHP_EOL;
 				echo "    <param id='defaultLocationText' name='defaultLocationText' value='Enter marker destination address or latitude,longitude here (required)' />".PHP_EOL;
 				echo "    <param id='defaultBubbleText' name='defaultBubbleText' value='Enter marker info bubble text here (optional)' />".PHP_EOL;
@@ -142,6 +150,8 @@ if ( !function_exists('cgmp_google_map_init_global_html_object') ):
 
 				echo "<object id='global-data-placeholder' style='background-color:transparent !important;border:none !important;height:0 !important;left:10000000px !important;line-height:0 !important;margin:0 !important;outline:medium none !important;padding:0 !important;position:absolute !important;top:100000px !important;width:0 !important;z-index:9999786 !important'>".PHP_EOL;
 				echo "    <param id='sep' name='sep' value='".CGMP_SEP."' />".PHP_EOL;
+                echo "    <param id='noBubbleDescriptionProvided' name='noBubbleDescriptionProvided' value='".CGMP_NO_BUBBLE_DESC."' />".PHP_EOL;
+                echo "    <param id='geoValidationClientRevalidate' name='geoValidationClientRevalidate' value='".CGMP_GEO_VALIDATION_CLIENT_REVALIDATE."' />".PHP_EOL;
 				echo "    <param id='cssHref' name='cssHref' value='".CGMP_PLUGIN_URI."style.css?ver=".CGMP_VERSION."' />".PHP_EOL;
 				echo "    <param id='language' name='language' value='".$cgmp_global_map_language."' />".PHP_EOL;
 				echo "    <param id='customMarkersUri' name='customMarkersUri' value='".CGMP_PLUGIN_IMAGES."/markers/' />".PHP_EOL;
