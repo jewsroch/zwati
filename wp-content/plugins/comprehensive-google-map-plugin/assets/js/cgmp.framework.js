@@ -61,12 +61,11 @@
                 Logger.fatal("Using parseJson stub..");
             }
 
-            var CGMPGlobal = {};
             var GoogleMapOrchestrator = (function () {
 
                 var builder = {};
                 var googleMap = {};
-                var initMap = function initMap(map, bubbleAutoPan, zoom, mapType) {
+                var initMap = function initMap(map, bubbleAutoPan, zoom, mapType, styles) {
                     googleMap = map;
 
                     var mapTypeIds = [];
@@ -97,6 +96,7 @@
                     googleMap.setOptions({
                         zoom: zoom,
                         mapTypeId: mapType,
+                        styles: styles,
                         mapTypeControlOptions: {
                             mapTypeIds: mapTypeIds
                         }
@@ -175,34 +175,34 @@
                         switch (kmlStatus) {
 
                             case google.maps.KmlLayerStatus.DOCUMENT_NOT_FOUND:
-                                msg = CGMPGlobal.errors.kmlNotFound;
+                                msg = CGMPGlobal.kmlNotFound;
                                 break;
                             case google.maps.KmlLayerStatus.DOCUMENT_TOO_LARGE:
-                                msg = CGMPGlobal.errors.kmlTooLarge;
+                                msg = CGMPGlobal.kmlTooLarge;
                                 break;
                             case google.maps.KmlLayerStatus.FETCH_ERROR:
-                                msg = CGMPGlobal.errors.kmlFetchError;
+                                msg = CGMPGlobal.kmlFetchError;
                                 break;
                             case google.maps.KmlLayerStatus.INVALID_DOCUMENT:
-                                msg = CGMPGlobal.errors.kmlDocInvalid;
+                                msg = CGMPGlobal.kmlDocInvalid;
                                 break;
                             case google.maps.KmlLayerStatus.INVALID_REQUEST:
-                                msg = CGMPGlobal.errors.kmlRequestInvalid;
+                                msg = CGMPGlobal.kmlRequestInvalid;
                                 break;
                             case google.maps.KmlLayerStatus.LIMITS_EXCEEDED:
-                                msg = CGMPGlobal.errors.kmlLimits;
+                                msg = CGMPGlobal.kmlLimits;
                                 break;
                             case google.maps.KmlLayerStatus.TIMED_OUT:
-                                msg = CGMPGlobal.errors.kmlTimedOut;
+                                msg = CGMPGlobal.kmlTimedOut;
                                 break;
                             case google.maps.KmlLayerStatus.UNKNOWN:
-                                msg = CGMPGlobal.errors.kmlUnknown;
+                                msg = CGMPGlobal.kmlUnknown;
                                 break;
                         }
                         if (msg != '') {
-                            var error = CGMPGlobal.errors.kml.replace("[MSG]", msg);
+                            var error = CGMPGlobal.kml.replace("[TITLE]", "<b>Comprehensive Google Map Plugin</b><br /><br /><b>Google KML error:</b><br />");
+                            error = error.replace("[MSG]", msg);
                             error = error.replace("[STATUS]", kmlStatus);
-                            Errors.alertError(error);
                             Logger.error("Google returned KML error: " + msg + " (" + kmlStatus + ")");
                             Logger.error("KML file: " + kmlLayer.getUrl());
                         }
@@ -220,20 +220,28 @@
 
 
             var MarkerBuilder = function () {
-                var markers, storedAddresses, badAddresses, defaultUnits, wasBuildAddressMarkersCalled, timeout, directionControlsBinded, googleMap, csvString, bubbleAutoPan, originalExtendedBounds, originalMapCenter, updatedZoom, mapDivId, geocoder, bounds, infowindow, streetViewService, directionsRenderer, directionsService;
+                var markers, toValidateAddresses, badAddresses, defaultUnits, wasBuildAddressMarkersCalled, timeout, directionControlsBinded, googleMap, csvString, bubbleAutoPan, originalExtendedBounds, originalMapCenter, updatedZoom, mapDivId, geocoder, bounds, infowindow, streetViewService, directionsRenderer, directionsService;
                 var geolocationMarker = null;
-                var init = function init(map, autoPan, units) {
+                var isGeoMashupSet = false;
+                var enablemarkerclustering = false;
+                var resetCacheRequired = false;
+                var geoMashupJsonData = [];
+                var nonGeoMashupJsonData = [];
+                var mapClickListener = {};
+                var init = function init(map, autoPan, units, mainJson) {
+                    nonGeoMashupJsonData = mainJson;
                     googleMap = map;
                     mapDivId = googleMap.getDiv().id;
                     bubbleAutoPan = autoPan;
                     defaultUnits = units;
-                    google.maps.event.addListener(googleMap, 'click', function () {
+                    enablemarkerclustering = mainJson.enablemarkerclustering !== "false";
+                    mapClickListener = google.maps.event.addListener(googleMap, 'click', function () {
                         resetMap();
                     });
 
                     markers = [];
                     badAddresses = [];
-                    storedAddresses = [];
+                    toValidateAddresses = [];
 
                     updatedZoom = 5;
 
@@ -260,25 +268,166 @@
 
                 var setGeoLocationIfEnabled = function setGeoLocationIfEnabled(enableGeoLocation) {
                     if (enableGeoLocation === "true") {
-                        geolocationMarker = new GeolocationMarker();
+                        if (is_mobile_device()) {
+                            geolocationMarker = new GeolocationMarker();
+                            google.maps.event.addListenerOnce(geolocationMarker, 'position_changed', function () {
+                                googleMap.setCenter(this.getPosition());
+                                googleMap.fitBounds(this.getBounds());
+                            });
 
-                        google.maps.event.addListenerOnce(geolocationMarker, 'position_changed', function () {
-                            googleMap.setCenter(this.getPosition());
-                            googleMap.fitBounds(this.getBounds());
-                        });
-
-                        google.maps.event.addListener(geolocationMarker, 'geolocation_error', function (e) {
-                            alert('There was an error creating Geolocation marker: ' + e.message + "\n\nProceeding with normal map generation..");
-                            Logger.error('There was an error obtaining your position. Message: ' + e.message);
-                            geolocationMarker = null; // Makes sure that the map is rendered when there was a problem with Geo marker
-                        });
-                        geolocationMarker.setPositionOptions({enableHighAccuracy: true, timeout: 6000, maximumAge: 0});
-                        geolocationMarker.setMap(googleMap);
+                            google.maps.event.addListener(geolocationMarker, 'geolocation_error', function (e) {
+                                //alert('There was an error creating Geolocation marker: ' + e.message + "\n\nProceeding with normal map generation..");
+                                Logger.error('There was an error obtaining your position. Message: ' + e.message);
+                                geolocationMarker = null; // Makes sure that the map is rendered when there was a problem with Geo marker
+                            });
+                            geolocationMarker.setPositionOptions({enableHighAccuracy: true, timeout: 6000, maximumAge: 0});
+                            geolocationMarker.setMap(googleMap);
+                        }
                     }
                 }
 
                 var isBuildAddressMarkersCalled = function isBuildAddressMarkersCalled() {
                     return wasBuildAddressMarkersCalled;
+                }
+
+                function queryGeocoderService() {
+                    clearTimeout(timeout);
+                    if (toValidateAddresses.length > 0) {
+                        var element = toValidateAddresses.shift();
+                        Logger.info("Geocoding '" + element.address + "' Left " + toValidateAddresses.length + " items to geocode..");
+                        var geocoderRequest = {
+                            "address": element.address
+                        };
+                        geocoder.geocode(geocoderRequest, function (results, status) {
+                            geocoderCallback(results, status, element);
+                        });
+                    } else {
+                        setBounds();
+
+                        if (enablemarkerclustering) {
+                            var doneClustering = false;
+                            var head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
+                            var script = document.createElement('script');
+                            script.type = 'text/javascript';
+                            script.src = "http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer_compiled.js";
+                            script.onload = script.onreadystatechange = function () {
+                                if (!doneClustering && (!this.readyState || /loaded|complete/.test(script.readyState))) {
+                                    doneClustering = true;
+                                    //http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer_compiled.js
+
+                                    google.maps.event.removeListener(mapClickListener);
+                                    markerClusterer = new MarkerClusterer(googleMap, markers, {averageCenter: true, zoomOnClick: true});
+
+                                    // Handle memory leak in IE
+                                    script.onload = script.onreadystatechange = null;
+                                    if (head && script.parentNode) {
+                                        head.removeChild(script);
+                                    }
+                                    script = undefined;
+                                }
+                            };
+                            // Use insertBefore instead of appendChild  to circumvent an IE6 bug - die IE6, just die! A.Z.
+                            // head.insertBefore( script, head.firstChild );
+                            head.appendChild(script);
+                        }
+
+                        if (resetCacheRequired) {
+                            Logger.warn("Reset server map data cache required");
+
+                            if (isGeoMashupSet) {
+                                $.each(markers, function (index, marker) {
+                                    var position = (marker.position + "").replace(new RegExp("\\(|\\)", "g"), "");
+                                    $.each(geoMashupJsonData, function (jsonKey, jsonValue) {
+                                        if (jsonKey === marker.content) {
+                                            if (jsonValue.validated_address_csv_data.indexOf(CGMPGlobal.geoValidationClientRevalidate) != -1) {
+                                                jsonValue.validated_address_csv_data = jsonValue.validated_address_csv_data.replace(new RegExp(CGMPGlobal.geoValidationClientRevalidate, "g"), position);
+                                                return false;
+                                            }
+                                        }
+                                    });
+                                });
+                                var jsonDataAsString = JSON.stringify(geoMashupJsonData);
+                                $.post(CGMPGlobal.ajaxurl, {action: CGMPGlobal.ajaxCacheMapAction, data: jsonDataAsString, geoMashup: "true", timestamp: CGMPGlobal.timestamp}, function (response) {
+                                    Logger.info("Posting map data to the server..");
+                                    if (response != null && response === "OK") {
+                                        Logger.info("Map geo mashup cache was reset on the server");
+                                    }
+                                });
+                            } else {
+                                var rawMarkerCSV = nonGeoMashupJsonData.markerlist.split("|");
+                                var widgetId = nonGeoMashupJsonData.debug.widget_id;
+                                var postId = nonGeoMashupJsonData.debug.post_id;
+                                var postType = nonGeoMashupJsonData.debug.post_type;
+                                var shortcodeId = nonGeoMashupJsonData.debug.shortcodeid;
+
+                                var filtered = [];
+                                $.each(markers, function (buildMarkerIndex, marker) {
+                                    var position = (marker.position + "").replace(new RegExp("\\(|\\)", "g"), "");
+                                    $.each(rawMarkerCSV, function (rawCsvMarkerIndex, value) {
+
+                                        var chunks = value.split(CGMPGlobal.sep);
+                                        if (chunks[0] === marker.content) {
+                                            Logger.info(chunks[0] + " matched " + marker.content + " (marker#" + (buildMarkerIndex + 1) + ")");
+                                            if (value.indexOf(CGMPGlobal.geoValidationClientRevalidate) != -1) {
+                                                filtered[buildMarkerIndex] = value.replace(new RegExp(CGMPGlobal.geoValidationClientRevalidate, "g"), position);
+                                            } else {
+                                                filtered[buildMarkerIndex] = value;
+                                            }
+                                            return false;
+                                        }
+                                    });
+                                });
+
+                                var cleansedMarkerCSV = filtered.join("|");
+                                if (typeof widgetId !== "undefined" && widgetId !== "undefined") {
+                                    $.post(CGMPGlobal.ajaxurl, {action: CGMPGlobal.ajaxCacheMapAction, data: cleansedMarkerCSV, geoMashup: "false", widgetId: widgetId, timestamp: CGMPGlobal.timestamp}, function (response) {
+                                        Logger.info("Posting map data to the server..");
+                                        if (response != null) {
+                                            if (response === "OK_WIDGET") {
+                                                Logger.info("Map cache was reset on the server for widget#" + widgetId);
+                                            }
+                                        }
+                                    });
+                                } else if (typeof postId !== "undefined" && postId !== "undefined") {
+                                    $.post(CGMPGlobal.ajaxurl, {action: CGMPGlobal.ajaxCacheMapAction, data: cleansedMarkerCSV, geoMashup: "false", postId: postId, postType: postType, shortcodeId: shortcodeId, timestamp: CGMPGlobal.timestamp}, function (response) {
+                                        Logger.info("Posting map data to the server..");
+                                        if (response != null) {
+                                            if (response === "OK_POST") {
+                                                Logger.info("Map cache was reset on the server for post#" + postId + " shortcode#" + shortcodeId);
+                                            } else if (response === "OK_PAGE") {
+                                                Logger.info("Map cache was reset on the server for page#" + postId + " shortcode#" + shortcodeId);
+                                            } else if (response === "OK_CUSTOM") {
+                                                Logger.info("Map cache was reset on the server for type " + postType+ "#" + postId + " shortcode#" + shortcodeId);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                            resetCacheRequired = false;
+                        }
+
+                        Logger.info("Have " + (markers.length) + " markers on the map");
+                    }
+                }
+
+                function geocoderCallback(results, status, element) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        Logger.info("Geocoding '" + element.address + "' OK!");
+                        var addressPoint = results[0].geometry.location;
+                        instrumentMarker(addressPoint, element);
+                        timeout = setTimeout(function() { queryGeocoderService(); }, 200);
+                    } else if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+                        Logger.warn("Geocoding '" + element.address + "' OVER_QUERY_LIMIT!");
+                        setBounds();
+                        toValidateAddresses.push(element);
+                        timeout = setTimeout(function() { queryGeocoderService(); }, 2200);
+                    } else if (status == google.maps.GeocoderStatus.ZERO_RESULTS) {
+                        Logger.warn("Geocoding '" + element.address + "' ZERO_RESULTS!");
+                        timeout = setTimeout(function() { queryGeocoderService(); }, 200);
+                    }  else  {
+                        Logger.warn("Geocoding '" + element.address + "' " + status + "!");
+                        timeout = setTimeout(function() { queryGeocoderService(); }, 200);
+                    }
                 }
 
                 var buildAddressMarkers = function buildAddressMarkers(markerLocations, isGeoMashap, isBubbleContainsPostLink) {
@@ -288,6 +437,7 @@
                     csvString = Utils.searchReplace(csvString, "'", "");
 
                     if (isGeoMashap === "true") {
+                        isGeoMashupSet = true;
                         var json = parseJson(csvString);
                         if (isBubbleContainsPostLink === "true") {
                             createGoogleMarkersFromGeomashupJson(json, true);
@@ -298,12 +448,16 @@
                         createGoogleMarkersFromCsvAddressData(csvString, '', '', '', false, false);
                     }
                     setBounds();
+                    queryGeocoderService();
                 }
 
                 function createGoogleMarkersFromGeomashupJson(json, infoBubbleContainPostLink) {
                     var index = 1;
+
+                    geoMashupJsonData = json;
+
                     $.each(json, function (key, value) {
-                        if (key === "live_debug") {
+                        if (key === "live_debug" || key === "debug") {
                             return true;
                         }
                         if (this.excerpt == null) {
@@ -316,7 +470,6 @@
                         createGoogleMarkersFromCsvAddressData(this.validated_address_csv_data, this.title, this.permalink, this.excerpt, infoBubbleContainPostLink, true);
                         index++;
                     });
-                    Logger.info("Have " + (markers.length) + " destinations for marker Geo mashup..");
                 }
 
                 function createGoogleMarkersFromCsvAddressData(csvString, postTitle, postLink, postExcerpt, infoBubbleContainPostLink, geoMashup) {
@@ -324,9 +477,8 @@
                         Logger.fatal("Not parsing empty validated address csv data.. Skipping");
                         return;
                     }
-
+                    Logger.info("Raw: " + csvString);
                     var locations = csvString.split("|");
-                    Logger.info("CSV " + locations);
                     for (var i = 0; i < locations.length; i++) {
                         var target = locations[i];
                         if (target != null && target != "") {
@@ -355,6 +507,12 @@
                                 geoMashup: geoMashup
                             };
 
+                            if (rawCoordinates === CGMPGlobal.geoValidationClientRevalidate) {
+                                resetCacheRequired = true;
+                                toValidateAddresses.push(element);
+                                continue;
+                            }
+
                             var latlngArr = [];
                             if (rawCoordinates.indexOf(",") != -1) {
                                 latlngArr = rawCoordinates.split(",");
@@ -369,9 +527,7 @@
                                 return false;
                             }
 
-                            var latLngPoint = new google.maps.LatLng(parseFloat(latlngArr[0]).toFixed(8), parseFloat(latlngArr[1]).toFixed(8));
-                            Logger.info("Get marker: " + userInputAddress + " " + latLngPoint);
-
+                            var latLngPoint = new google.maps.LatLng(parseFloat(latlngArr[0]), parseFloat(latlngArr[1]));
                             instrumentMarker(latLngPoint, element);
                         }
                     }
@@ -386,32 +542,15 @@
                         map: googleMap
                     });
                     if (marker) {
-                        Logger.info("Got marker: " + element.address + " " + point);
+                        Logger.info("Built marker: " + element.address + " " + point);
                         if (element.markerIcon) {
                             var markerIcon = element.markerIcon;
                             if (typeof markerIcon == "undefined" || markerIcon === "undefined") {
-                                markerIcon = '1-default.png';
+                                markerIcon = "1-default.png";
                             }
-                            marker.setIcon(CGMPGlobal.customMarkersUri + markerIcon);
-
-                            var shadow = null;
-                            var defaultMarkers = ['1-default.png', '2-default.png'];
-                            var defaultPins = ['4-default.png', '5-default.png', '6-default.png', '7-default.png'];
-
-                            if ($.inArray(markerIcon, defaultMarkers) != -1) {
-                                var url = CGMPGlobal.customMarkersUri + "msmarker.shadow.png";
-                                shadow = buildMarkerImage(url, 59, 32, 0, 0, 16, 33);
-                            } else if ($.inArray(markerIcon, defaultPins) != -1) {
-                                var url = CGMPGlobal.customMarkersUri + "msmarker.shadow.png";
-                                shadow = buildMarkerImage(url, 59, 32, 0, 0, 21, 34);
-                            } else if (markerIcon.indexOf('3-default') != -1) {
-                                var url = CGMPGlobal.customMarkersUri + "beachflag_shadow.png";
-                                shadow = buildMarkerImage(url, 37, 32, 0, 0, 10, 33);
-                            } else {
-                                shadow = buildMarkerImage(CGMPGlobal.customMarkersUri + "shadow.png", 68, 37, 0, 0, 32, 38);
+                            if (markerIcon !== "1-default.png") {
+                                marker.setIcon(CGMPGlobal.customMarkersUri + markerIcon);
                             }
-
-                            marker.setShadow(shadow);
                         }
 
                         attachEventlistener(marker, element);
@@ -419,13 +558,8 @@
                             bindDirectionControlsToEvents();
                             directionControlsBinded = true;
                         }
-
                         markers.push(marker);
                     }
-                }
-
-                function buildMarkerImage(url, sizeX, sizeY, pointAX, pointAY, pointBX, pointBY) {
-                    return new google.maps.MarkerImage(url, new google.maps.Size(sizeX, sizeY), new google.maps.Point(pointAX, pointAY), new google.maps.Point(pointBX, pointBY));
                 }
 
                 function setBounds() {
@@ -817,7 +951,7 @@
 
                     var bubble = "<div id='bubble-" + randomNumber + "' style='height: 130px !important; width: 300px !important;' class='bubble-content'>";
                     if ((!markersElement.geoMashup || (markersElement.geoMashup && !markersElement.infoBubbleContainPostLink))) {
-                        bubble += "<h4>" + CGMPGlobal.translations.address + ":</h4>";
+                        bubble += "<h4>" + CGMPGlobal.address + ":</h4>";
                         bubble += "<p class='custom-bubble-text'>" + contentFromMarker + "</p>";
                         if (markersElement.customBubbleText != '') {
                             bubble += "<p class='custom-bubble-text'>" + markersElement.customBubbleText + "</p>";
@@ -830,7 +964,7 @@
                     }
                     bubble += "<div class='custom-bubble-links-section'>";
                     bubble += "<hr />";
-                    bubble += "<p class='custom-bubble-text'>" + CGMPGlobal.translations.directions + ": <a id='toHere-" + randomNumber + "' class='dirToHereTrigger' href='javascript:void(0);'>" + CGMPGlobal.translations.toHere + "</a> - <a id='fromHere-" + randomNumber + "' class='dirFromHereTrigger' href='javascript:void(0);'>" + CGMPGlobal.translations.fromHere + "</a> | <a id='trigger-" + randomNumber + "' class='streetViewTrigger' href='javascript:void(0);'>" + CGMPGlobal.translations.streetView + "</a></p>";
+                    bubble += "<p class='custom-bubble-text'>" + CGMPGlobal.directions + ": <a id='toHere-" + randomNumber + "' class='dirToHereTrigger' href='javascript:void(0);'>" + CGMPGlobal.toHere + "</a> - <a id='fromHere-" + randomNumber + "' class='dirFromHereTrigger' href='javascript:void(0);'>" + CGMPGlobal.fromHere + "</a> | <a id='trigger-" + randomNumber + "' class='streetViewTrigger' href='javascript:void(0);'>" + CGMPGlobal.streetView + "</a></p>";
                     bubble += "</div></div>";
 
                     return {
@@ -1274,47 +1408,28 @@
                 }
             })();
 
-            if ($('object#global-data-placeholder').length == 0) {
-                Logger.fatal("The global HTML <object> element is undefined. Aborting map generation .. d[-_-]b");
-                return;
-            }
-
             var head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
             var link = document.createElement('link');
             link.type = 'text/css';
             link.rel = 'stylesheet';
-            link.href = $("object#global-data-placeholder").find("param#cssHref").val();
+            link.href = CGMPGlobal.cssHref;
             link.media = 'screen';
             head.appendChild(link);
 
-            CGMPGlobal.sep = $("object#global-data-placeholder").find("param#sep").val();
-            CGMPGlobal.noBubbleDescriptionProvided = $("object#global-data-placeholder").find("param#noBubbleDescriptionProvided").val();
-            CGMPGlobal.customMarkersUri = $("object#global-data-placeholder").find("param#customMarkersUri").val();
-            CGMPGlobal.errors = $("object#global-data-placeholder").find("param#errors").val();
-
-            CGMPGlobal.errors = parseJson(CGMPGlobal.errors);
-            CGMPGlobal.translations = $("object#global-data-placeholder").find("param#translations").val();
-            CGMPGlobal.translations = parseJson(CGMPGlobal.translations);
-
             var versionMajor = parseFloat($.fn.jquery.split(".")[0]);
             var versionMinor = parseFloat($.fn.jquery.split(".")[1]);
-            if ((versionMajor < 1) || (versionMajor >= 1 && versionMajor < 2 && versionMinor < 3)) {
-                alert(CGMPGlobal.errors.oldJquery);
-                Logger.fatal("Client uses jQuery older than the version 1.3.0. Aborting map generation ..");
-                return false;
+            if ((versionMajor < 1) || (versionMajor >= 1 && versionMajor < 2 && versionMinor < 9)) {
+                Logger.fatal("Client uses jQuery older than the version 1.9.0, check if he is using jQuery Migrate plugin");
             }
 
             if (typeof google === "undefined" || !google) {
-                Errors.alertError(CGMPGlobal.errors.msgNoGoogle);
                 Logger.fatal("We do not have reference to Google API. Aborting map generation ..");
                 return false;
             } else if (typeof GMap2 !== "undefined" && GMap2) {
-                Errors.alertError(CGMPGlobal.errors.msgApiV2);
                 Logger.fatal("It looks like the webpage has reference to GMap2 object from Google API v2. Aborting map generation ..");
                 return false;
             }
 
-            CGMPGlobal.language = $("object#global-data-placeholder").find("param#language").val();
             google.load('maps', '3', {
                 other_params: 'sensor=false&libraries=panoramio&language=' + CGMPGlobal.language,
                 callback: function () {
@@ -1339,14 +1454,41 @@
                     }
 
                     if ($('div#' + json.id).length > 0) {
+                        var mapDiv = document.getElementById(json.id);
+                        if (CGMPGlobal.mapFillViewport === "true") {
+                            // Very basic mobile user agent detection
+                            if (is_mobile_device()) {
+                                mapDiv.style.width = '100%';
+                                var viewPortHeight = $(window).height() + "";
 
-                        var googleMap = new google.maps.Map(document.getElementById(json.id));
+                                if (viewPortHeight.indexOf("px") != -1) {
+                                    mapDiv.style.height = viewPortHeight;
+                                } else if (viewPortHeight.indexOf("%") != -1) {
+                                    mapDiv.style.height = "100%";
+                                } else {
+                                    mapDiv.style.height = viewPortHeight + "px";
+                                }
+                            }
+                        }
 
-                        GoogleMapOrchestrator.initMap(googleMap, json.bubbleautopan, parseInt(json.zoom), json.maptype);
+                        var googleMap = new google.maps.Map(mapDiv);
+                        if (typeof json.styles !== "undefined" && Utils.trim(json.styles) !== "") {
+                            json.styles = base64_decode(json.styles);
+                            try {
+                                json.styles = parseJson(json.styles);
+                            }
+                            catch(err) {
+                                Logger.fatal("Could not parse map styles as a JSON object");
+                                json.styles = "";
+                            }
+                        } else {
+                            json.styles = "";
+                        }
+                        GoogleMapOrchestrator.initMap(googleMap, json.bubbleautopan, parseInt(json.zoom), json.maptype, json.styles);
                         LayerBuilder.init(googleMap);
 
                         var markerBuilder = new MarkerBuilder();
-                        markerBuilder.init(googleMap, json.bubbleautopan, json.distanceunits);
+                        markerBuilder.init(googleMap, json.bubbleautopan, json.distanceunits, json);
                         markerBuilder.setGeoLocationIfEnabled(json.enablegeolocationmarker);
 
                         var controlOptions = {
@@ -1379,14 +1521,14 @@
                         if (json.kml != null && Utils.trim(json.kml) != '') {
                             LayerBuilder.buildKmlLayer(json.kml);
                         } else {
-
+                            //json.debug.geo_errors = parseJson('{"39\u00b0 26 56.42 N 8\u00b0 11 26.38 W":{"39\u00b0 26 56.42 N 8\u00b0 11 26.38 W":"OVER_QUERY_LIMIT"},"Estrada do Cabrito - Rossio ao sul do Tejo - Abrantes":{"Estrada do Cabrito - Rossio ao sul do Tejo - Abrantes":"OVER_QUERY_LIMIT"}}');
                             if (json.markerlist != null && Utils.trim(json.markerlist) != '') {
                                 markerBuilder.buildAddressMarkers(json.markerlist, json.addmarkermashup, json.addmarkermashupbubble);
                             }
 
                             var isBuildAddressMarkersCalled = markerBuilder.isBuildAddressMarkersCalled();
                             if (!isBuildAddressMarkersCalled) {
-                                Errors.alertError(CGMPGlobal.errors.msgMissingMarkers);
+                                Logger.fatal("No markers specified for the Google map..")
                             }
                         }
 
@@ -1401,7 +1543,7 @@
                                 resizeMapWhenPlaceholderBecomesVisible();
                             } else {
                                 // Just to be on a safe side lets resize
-                                setTimeout(function () { resizeMapWhenPlaceholderBecomesVisible(); }, (timeoutDelay * 4));
+                                timeout = setTimeout(function () { resizeMapWhenPlaceholderBecomesVisible(); }, (timeoutDelay * 3));
                             }
 
                             function resizeMapWhenPlaceholderBecomesVisible() {
@@ -1411,19 +1553,26 @@
                                 if ($(mapPlaceholder).is(":hidden")) {
                                     timeout = setTimeout(resizeMapWhenPlaceholderBecomesVisible, timeoutDelay);
                                 } else {
-                                    setTimeout(function () {resize_map(googleMap);}, timeoutDelay);
+                                    timeout = setTimeout(function () {resize_map(googleMap);}, timeoutDelay);
                                 }
                             }
 
                             function resize_map(googleMap) {
+                                if (timeout != null) {
+                                    clearTimeout(timeout);
+                                }
                                 if (googleMap) {
-                                    var oldZoom = googleMap.getZoom();
-                                    var oldBounds = googleMap.getBounds();
-                                    var oldCenter = googleMap.getCenter();
                                     google.maps.event.trigger(googleMap, "resize");
-                                    googleMap.setZoom(oldZoom);
-                                    googleMap.setCenter(oldCenter);
-                                    googleMap.getBounds(oldBounds);
+                                    timeout = setTimeout(function() { click_map(googleMap); }, timeoutDelay / 2)
+                                }
+                            }
+
+                            function click_map(googleMap) {
+                                if (timeout != null) {
+                                    clearTimeout(timeout);
+                                }
+                                if (googleMap) {
+                                    google.maps.event.trigger(googleMap, "click");
                                 }
                             }
                         });
@@ -1435,3 +1584,69 @@
         }(jQueryObj));
     }
 })();
+
+function is_mobile_device() {
+    var userAgent = navigator.userAgent;
+    //http://www.zytrax.com/tech/web/mobile_ids.html
+    if (typeof userAgent !== "undefined" && userAgent != "") {
+        return userAgent.match(/Android|BlackBerry|IEMobile|i(Phone|Pad|Pod)|Kindle|MeeGo|NetFront|Nokia|Opera M(ob|in)i|Pie|PalmOS|PDA|Polaris|Plucker|Samsung|SonyEricsson|SymbianOS|UP.Browser|Vodafone|webOS|Windows Phone/i);
+    }
+    return false;
+}
+
+function base64_decode (data) {
+    // From: http://phpjs.org/functions
+    // +   original by: Tyler Akins (http://rumkin.com)
+    // +   improved by: Thunder.m
+    // +      input by: Aman Gupta
+    // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+    // +   bugfixed by: Onno Marsman
+    // +   bugfixed by: Pellentesque Malesuada
+    // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+    // +      input by: Brett Zamir (http://brett-zamir.me)
+    // +   bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+    // *     example 1: base64_decode('S2V2aW4gdmFuIFpvbm5ldmVsZA==');
+    // *     returns 1: 'Kevin van Zonneveld'
+    // mozilla has this native
+    // - but breaks in 2.0.0.12!
+    //if (typeof this.window['atob'] === 'function') {
+    //    return atob(data);
+    //}
+    var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    var o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
+        ac = 0,
+        dec = "",
+        tmp_arr = [];
+
+    if (!data) {
+        return data;
+    }
+
+    data += '';
+
+    do { // unpack four hexets into three octets using index points in b64
+        h1 = b64.indexOf(data.charAt(i++));
+        h2 = b64.indexOf(data.charAt(i++));
+        h3 = b64.indexOf(data.charAt(i++));
+        h4 = b64.indexOf(data.charAt(i++));
+
+        bits = h1 << 18 | h2 << 12 | h3 << 6 | h4;
+
+        o1 = bits >> 16 & 0xff;
+        o2 = bits >> 8 & 0xff;
+        o3 = bits & 0xff;
+
+        if (h3 == 64) {
+            tmp_arr[ac++] = String.fromCharCode(o1);
+        } else if (h4 == 64) {
+            tmp_arr[ac++] = String.fromCharCode(o1, o2);
+        } else {
+            tmp_arr[ac++] = String.fromCharCode(o1, o2, o3);
+        }
+    } while (i < data.length);
+
+    dec = tmp_arr.join('');
+
+    return dec;
+}
+

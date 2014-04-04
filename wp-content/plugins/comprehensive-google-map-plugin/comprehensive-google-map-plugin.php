@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Comprehensive Google Map Plugin
-Plugin URI: http://initbinder.com/comprehensive-google-map-plugin
+Plugin URI: http://wordpress.org/support/plugin/comprehensive-google-map-plugin
 Description: A simple and intuitive, yet elegant and fully documented Google map plugin that installs as a widget and a short code. The plugin is packed with useful features. Widget and shortcode enabled. Offers extensive configuration options for markers, over 250 custom marker icons, marker Geo mashup, controls, size, KML files, location by latitude/longitude, location by address, info window, directions, traffic/bike lanes and more. 
-Version: 9.0.4.2
-Author: Alexander Zagniotov
-Author URI: http://initbinder.com
+Version: 9.0.20
+Author: Alex Zagniotov
+Author URI: http://wordpress.org/support/plugin/comprehensive-google-map-plugin
 License: GPLv2
 
 
@@ -28,7 +28,6 @@ if ( !function_exists( 'add_action' ) ) {
 	echo "Hi there!  I'm just a plugin, not much I can do when called directly.";
 	exit;
 }
-
 
 if ( !function_exists('cgmp_define_constants') ):
 	function cgmp_define_constants() {
@@ -56,7 +55,8 @@ if ( !function_exists('cgmp_require_dependancies') ):
 		require_once (CGMP_PLUGIN_DIR . '/widget.php');
 		require_once (CGMP_PLUGIN_DIR . '/shortcode.php');
 		require_once (CGMP_PLUGIN_DIR . '/metabox.php');
-		require_once (CGMP_PLUGIN_DIR . '/menu.php');
+		require_once (CGMP_PLUGIN_DIR . '/admin-menu.php');
+        require_once (CGMP_PLUGIN_DIR . '/admin-bar-menu.php');
 		require_once (CGMP_PLUGIN_DIR . '/head.php');
 	}
 endif;
@@ -64,7 +64,6 @@ endif;
 if ( !function_exists('cgmp_register_hooks') ):
 	function cgmp_register_hooks() {
 		register_activation_hook( CGMP_PLUGIN_BOOTSTRAP, 'cgmp_on_activate_hook');
-		register_uninstall_hook( CGMP_PLUGIN_BOOTSTRAP, 'cgmp_on_uninstall_hook');
 	}
 endif;
 
@@ -73,19 +72,37 @@ if ( !function_exists('cgmp_add_actions') ):
 		//http://scribu.net/wordpress/optimal-script-loading.html
 		add_action('init', 'cgmp_google_map_register_scripts');
 		add_action('init', 'cgmp_load_plugin_textdomain');
-		add_action('wp_footer', 'cgmp_google_map_init_scripts');
 		add_action('admin_notices', 'cgmp_show_message');
+		add_action('admin_notices', 'cgmp_show_initial_warning_message');
 		add_action('admin_init', 'cgmp_google_map_admin_add_style');
 		add_action('admin_init', 'cgmp_google_map_admin_add_script');
 		add_action('admin_footer', 'cgmp_google_map_init_global_admin_html_object');
 		add_action('admin_menu', 'cgmp_google_map_plugin_menu');
-		add_action('widgets_init', create_function('', 'return register_widget("ComprehensiveGoogleMap_Widget");'));
-		add_action('wp_head', 'cgmp_google_map_deregister_scripts', 200);
 
         if ( is_admin() ) {
-            add_action('init', 'cgmp_register_mce');
-            add_action('wp_ajax_cgmp_mce_ajax_action', 'cgmp_mce_ajax_action_callback');
+            $setting_plugin_menu_bar_menu = get_option(CGMP_DB_SETTINGS_PLUGIN_ADMIN_BAR_MENU);
+            if (!isset($setting_plugin_menu_bar_menu) || (isset($setting_plugin_menu_bar_menu) && $setting_plugin_menu_bar_menu != "false")) {
+                add_action('admin_bar_menu', 'cgmp_admin_bar_menu', 99999);
+            }
         }
+
+		add_action('widgets_init', create_function('', 'return register_widget("ComprehensiveGoogleMap_Widget");'));
+		add_action('wp_head', 'cgmp_google_map_deregister_scripts', 200);
+		add_action('wp_head', 'cgmp_generate_global_options');
+
+        if ( is_admin() ) {
+            $setting_tiny_mce_button = get_option(CGMP_DB_SETTINGS_TINYMCE_BUTTON);
+            if (!isset($setting_tiny_mce_button) || (isset($setting_tiny_mce_button) && $setting_tiny_mce_button != "false")) {
+                if (cgmp_should_load_admin_scripts()) {
+                    add_action('init', 'cgmp_register_mce');
+                    add_action('wp_ajax_cgmp_mce_ajax_action', 'cgmp_mce_ajax_action_callback');
+                }
+            }
+        }
+
+        add_action('wp_ajax_nopriv_cgmp_ajax_cache_map_action', 'cgmp_ajax_cache_map_action_callback');
+        add_action('wp_ajax_cgmp_ajax_cache_map_action', 'cgmp_ajax_cache_map_action_callback');
+        add_action('wp_ajax_cgmp_insert_shortcode_to_post_action', 'cgmp_insert_shortcode_to_post_action_callback');
 
         add_action('save_post', 'cgmp_save_post_hook' );
         add_action('save_page', 'cgmp_save_page_hook' );
@@ -108,31 +125,12 @@ endif;
 
 if ( !function_exists('cgmp_add_filters') ):
 	function cgmp_add_filters() {
-		add_filter('widget_text', 'do_shortcode');
+		add_filter( 'widget_text', 'do_shortcode');
 		add_filter( 'plugin_row_meta', 'cgmp_plugin_row_meta', 10, 2 );
+        add_filter( 'plugin_action_links', 'cgmp_plugin_action_links', 10, 2 );
 	}
 endif;
 
-if ( !function_exists('cgmp_init_db_settings') ):
-	function cgmp_init_db_settings() {
-		$current_theme_name = wp_get_theme();
-
-		$problematic_themes = array("mingle", "skeleton", "skeletonplus", "super-skeleton", "super-skeleton-child");
-		//Extremly ugly hack. Some theme developers do some funky stuff with footer calls in their themes, 
-		//which messes things up, while working normally in other themes
-		if (in_array(strtolower($current_theme_name), $problematic_themes)) {
-
-            update_option(CGMP_DB_SETTINGS_SHOULD_BASE_OBJECT_RENDER, "true");
-            update_option(CGMP_DB_SETTINGS_WAS_BASE_OBJECT_RENDERED, "false");
-            add_action('wp_footer', 'cgmp_google_map_init_scripts');
-
-		} else {
-			//Makes sure that there are no plugin scripts in the footer of the page that does not have a shortcode or widget
-			update_option(CGMP_DB_SETTINGS_SHOULD_BASE_OBJECT_RENDER, "false");
-			update_option(CGMP_DB_SETTINGS_WAS_BASE_OBJECT_RENDERED, "false");
-		}
-	}
-endif;
 
 global $cgmp_global_map_language;
 $cgmp_global_map_language = "en";
@@ -144,7 +142,6 @@ cgmp_add_actions();
 cgmp_register_hooks();
 cgmp_add_shortcode_support();
 cgmp_add_filters();
-cgmp_init_db_settings();
 /* BOOTSTRAPPING ENDS */
 
 ?>

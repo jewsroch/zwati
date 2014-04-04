@@ -24,6 +24,9 @@ if ( !function_exists('cgmp_shortcode_googlemap_handler') ):
 				return;
 			}
 
+            wp_enqueue_script('cgmp-google-map-jsapi');
+            wp_enqueue_script('cgmp-google-map-orchestrator-framework');
+
 			$shortcode_attribs = shortcode_atts(array(
                 'shortcodeid' => -1,
 				'latitude' => 0,
@@ -40,6 +43,8 @@ if ( !function_exists('cgmp_shortcode_googlemap_handler') ):
 				'streetviewcontrol' => 'true',
 				'scrollwheelcontrol' => 'false',
 				'showbike' => 'false',
+                'styles' => '',
+                'enablemarkerclustering' => 'false',
 				'bubbleautopan' => 'false',
                 'distanceunits' => 'miles',
 				'showtraffic' => 'false',
@@ -92,9 +97,20 @@ if ( !function_exists('cgmp_shortcode_googlemap_handler') ):
 			}
 
             if ($addmarkermashup == 'false' && trim($addmarkerlist) != "") {
+                
+                $post_type = "custom";
+                $post_id = -1;
+
                 global $post;
-                $post_type = $post->post_type;
-                $post_id = $post->ID;
+                if (isset($post)) {
+                    if (is_object($post)) {
+                        $post_type = isset($post->post_type) ? $post->post_type : $post_type;
+                        $post_id = isset($post->ID) ? $post->ID : $post_id;
+                    } else if (is_array($post) && !empty($post)) {
+                        $post_type = isset($post['post_type']) ? $post['post_type'] : $post_type;
+                        $post_id = isset($post['ID']) ? $post['ID'] : $post_id;
+                    }
+                }
 
                 if (is_numeric($shortcodeid) && $shortcodeid == -1) {
                     $shortcodeid =  md5($addmarkerlist);
@@ -107,13 +123,13 @@ if ( !function_exists('cgmp_shortcode_googlemap_handler') ):
 
 			$map_data_properties['id'] = $id;
 			$map_data_properties['markerlist'] = $addmarkerlist;
-
 			$map_data_properties['kml'] = cgmp_clean_kml($map_data_properties['kml']);
 			$map_data_properties['panoramiouid'] = cgmp_clean_panoramiouid($map_data_properties['panoramiouid']);
 
 			cgmp_set_google_map_language($language);
+            cgmp_map_data_injector(json_encode($map_data_properties), $id);
 
-         return cgmp_draw_map_placeholder($id, $width, $height, $mapalign, $directionhint, $poweredby).cgmp_map_data_injector(json_encode($map_data_properties), $id);
+         return cgmp_draw_map_placeholder($id, $width, $height, $mapalign, $directionhint, $poweredby);
 	}
 endif;
 

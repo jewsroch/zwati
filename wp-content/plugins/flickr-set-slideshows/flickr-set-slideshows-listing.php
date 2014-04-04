@@ -86,39 +86,43 @@ function make_gallery_table( $gal_array )  {
 }
 
 function user_change_del_gallery_validation() {
-    //treats del and change size requests (if JS disabled)
-    if ( $_REQUEST['fsg_action'] == 'delete' && ! wp_verify_nonce( $_REQUEST['_wpnonce'] , 'delete_fsg_gallery' ) && $_REQUEST['fsg_gal_id'] ) {
-	//check delete action nonce
-	echo '<div id="message" class="error fade"><p><strong>Request not valid.</strong></p></div>';
-	return;
-    }
-    if ( $_REQUEST['fsg_action'] == 'edit' && ! wp_verify_nonce( $_REQUEST['_wpnonce'] , 'edit_fsg_gallery' ) && $_REQUEST['fsg_gal_id'] ) {
-	//check delete action nonce
-	echo '<div id="message" class="error fade"><p><strong>Request not valid.</strong></p></div>';
-	return;
-    }
-    //check gallery exists
-    if ( $_REQUEST['fsg_action'] == 'delete' ) {
-	$gal_id = $_REQUEST['fsg_gal_id'];
-	if ( ! check_fsg_gallery( $gal_id ) ) {
-	    echo '<div id="message" class="error fade"><p><strong>Sorry this slideshow doesn\'t seem to exist...</strong></p></div>';
-	    return;
+
+	if ( isset( $_REQUEST[ 'fsg_action' ] ) ) {
+		//treats del and change size requests (if JS disabled)
+		if ( $_REQUEST['fsg_action'] == 'delete' && ! wp_verify_nonce( $_REQUEST['_wpnonce'] , 'delete_fsg_gallery' ) && $_REQUEST['fsg_gal_id'] ) {
+			//check delete action nonce
+			echo '<div id="message" class="error fade"><p><strong>Request not valid.</strong></p></div>';
+			return;
+		}
+		if ( $_REQUEST['fsg_action'] == 'edit' && ! wp_verify_nonce( $_REQUEST['_wpnonce'] , 'edit_fsg_gallery' ) && $_REQUEST['fsg_gal_id'] ) {
+			//check delete action nonce
+			echo '<div id="message" class="error fade"><p><strong>Request not valid.</strong></p></div>';
+			return;
+		}
+		//check gallery exists
+		if ( $_REQUEST['fsg_action'] == 'delete' ) {
+			$gal_id = $_REQUEST['fsg_gal_id'];
+			if ( ! check_fsg_gallery( $gal_id ) ) {
+				echo '<div id="message" class="error fade"><p><strong>Sorry this slideshow doesn\'t seem to exist...</strong></p></div>';
+				return;
+			}
+			if ( ! delete_fsg_gallery( $gal_id ) ) {
+				echo '<div id="message" class="error fade"><p><strong>Problem deleting the slideshow</strong></p></div>';
+			}else{
+				echo '<div id="message" class="updated"><p><strong>Slideshow deleted</strong></p></div>';
+			}
+		}
+		//check gallery exists
+		if ( $_REQUEST['fsg_action'] == 'edit' ) {
+			$gal_id = $_REQUEST['fsg_gal_id'];
+			if ( ! check_fsg_gallery( $gal_id ) ) {
+			    echo '<div id="message" class="error fade"><p><strong>Sorry this slideshow doesn\'t seem to exist...</strong></p></div>';
+			    return;
+			}
+		}	
 	}
-	if ( ! delete_fsg_gallery( $gal_id ) ) {
-	    echo '<div id="message" class="error fade"><p><strong>Problem deleting the slideshow</strong></p></div>';
-	}else{
-	    echo '<div id="message" class="updated"><p><strong>Slideshow deleted</strong></p></div>';
-	}
-    }
-    //check gallery exists
-    if ( $_REQUEST['fsg_action'] == 'edit' ) {
-	$gal_id = $_REQUEST['fsg_gal_id'];
-	if ( ! check_fsg_gallery( $gal_id ) ) {
-	    echo '<div id="message" class="error fade"><p><strong>Sorry this slideshow doesn\'t seem to exist...</strong></p></div>';
-	    return;
-	}
-    }
-    
+	
+	
     //actually registers new size of gallery
     if ( ! empty( $_POST ) && isset( $_POST['new_fsg_size'] ) ) {
 	if ( ! isset ( $_POST['size'] ) OR ! isset ( $_POST['gal_id'] ) ) {

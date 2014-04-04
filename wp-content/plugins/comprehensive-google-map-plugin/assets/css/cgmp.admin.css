@@ -1,6 +1,7 @@
 span.italic{color:green;font-style:normal}
 span.sep{color:red;font-size:12px;font-style:normal;font-weight:400}
 .marker-input-info-text{color:#ababab; font-size: 11px}
+div#google-map-container-settings input {border-color: #B3B3B3; background: #F1F1F1}
 .google-map-tooltip{-moz-border-radius:5px;-webkit-border-radius:5px;background-color:#000;border:5px solid #777;border-radius:5px;color:#fff;display:none;font-family:verdana;font-size:11px;padding:15px;text-align:left;width:180px;z-index:9999999999}
 fieldset.fieldset{-moz-border-radius:3px;-webkit-border-radius:3px;background-color:#F1F1F1;background-image:0;border-bottom:1px solid #c1c1c1;border-left:1px solid #D1D1D1;border-radius:3px;border-right:1px solid #D1D1D1;border-top:1px solid #D1D1D1;margin-bottom:15px;padding:10px 10px 15px}
 fieldset.fieldset legend{color:gray;font-size:100%;padding:0.2em;text-align:left}
@@ -46,14 +47,14 @@ ul.tools-tabs-nav{margin-bottom:5px;padding-left:4.2em;padding-right:3.5em;paddi
 ul.tools-tabs-nav {*margin-bottom: 1px !important; margin-bottom: 1px\0/ !important; margin-bottom: 1px\9 !important;}
 @-moz-document url-prefix() {ul.tools-tabs-nav {margin-bottom: -1px;}}
 @media not all and (-webkit-min-device-pixel-ratio:0) {ul.tools-tabs-nav {margin-bottom: 0px;}}
-ul.tools-tabs-nav li{-moz-border-radius-topleft:6px;-moz-border-radius-topright:6px;-webkit-border-top-left-radius:6px;-webkit-border-top-right-radius:6px;background:none repeat scroll 0 0 #F8F8F8;border:1px solid #DFDFDF;border-top-left-radius:6px;border-top-right-radius:6px;display:inline-block;font-weight:700;margin:0 0.2em 0 0;max-width:20%;/*overflow:hidden;*/text-align:center;text-shadow:0 1px 0 #FFF}
+ul.tools-tabs-nav li{-moz-border-radius-topleft:6px;-moz-border-radius-topright:6px;-webkit-border-top-left-radius:6px;-webkit-border-top-right-radius:6px;background:none repeat scroll 0 0 #F8F8F8;border:1px solid #C0C0C0;border-top-left-radius:6px;border-top-right-radius:6px;display:inline-block;font-weight:700;margin:0 0.2em 0 0;max-width:20%;/*overflow:hidden;*/text-align:center;text-shadow:0 1px 0 #FFF}
 @media not all and (-webkit-min-device-pixel-ratio:0) {ul.tools-tabs-nav li {margin: 0px 0.2em -1px 0px;}}
 ul.tools-tabs-nav li a{color:#C1C1C1;display:inline-block;padding:0.6em 1em;text-decoration:none}
-ul.tools-tabs-nav li.current{-moz-box-shadow:0 -3px 5px rgba(0, 0, 0, 0.06);-webkit-box-shadow:0 -3px 5px rgba(0, 0, 0, 0.06);background:#FFF;border-bottom-color:#FFF;box-shadow:0 -3px 5px rgba(0, 0, 0, 0.06);color:#000}
+ul.tools-tabs-nav li.current{-moz-box-shadow:0 -3px 5px rgba(0, 0, 0, 0.15);-webkit-box-shadow:0 -3px 5px rgba(0, 0, 0, 0.15);background:#FFF;border-bottom-color:#FFF;box-shadow:0 -3px 5px rgba(0, 0, 0, 0.15);color:#000}
 ul.tools-tabs-nav li.current a{color:#000}
 .tools-tabs .documentation a{display:none !important}
-.tools-tabs .tools-tab-body{-moz-border-radius:6px;-moz-border-radius-bottomleft:6px;-moz-border-radius-bottomright:6px;-moz-border-radius-topright:6px;-webkit-border-bottom-left-radius:6px;-webkit-border-bottom-right-radius:6px;-webkit-border-radius:6px;-webkit-border-top-right-radius:6px;background:#FFF;border:1px solid #DFDFDF;border-bottom-left-radius:6px;border-bottom-right-radius:6px;border-radius:6px;border-top-right-radius:6px;border-top-width:1px;margin-top:-70px;min-height:300px;padding:63px 20px 25px 50px;width:70%}
-.tools-tabs .tools-tab-content{border-top:1px solid #DFDFDF;padding-top:25px}
+.tools-tabs .tools-tab-body{-moz-border-radius:6px;-moz-border-radius-bottomleft:6px;-moz-border-radius-bottomright:6px;-moz-border-radius-topright:6px;-webkit-border-bottom-left-radius:6px;-webkit-border-bottom-right-radius:6px;-webkit-border-radius:6px;-webkit-border-top-right-radius:6px;background:#FFF;border:1px solid #C0C0C0;border-bottom-left-radius:6px;border-bottom-right-radius:6px;border-radius:6px;border-top-right-radius:6px;border-top-width:1px;margin-top:-70px;min-height:300px;padding:63px 20px 25px 50px;width:70%}
+.tools-tabs .tools-tab-content{border-top:1px solid #C0C0C0;padding-top:25px}
 #cgmp-popup-mask{background-color:#222;display:none;left:0;position:absolute;top:0;z-index:9000}
 .cgmp-popup-window{display:none;height:200px;left:0;padding:20px;position:fixed;top:0;width:440px;z-index:9999}
 .cgmp-popup-shortcode-dialog{-moz-border-radius:2px;-moz-box-shadow:0 4px 16px rgba(0, 0, 0, 0.4);-webkit-border-radius:2px;-webkit-box-shadow:0 4px 16px rgba(0, 0, 0, 0.4);background:none repeat scroll 0 0 #F9EDBE;border:1px solid #EBAE3D;border-radius:2px;box-shadow:0 4px 16px rgba(0, 0, 0, 0.4);color:#222;height:auto;min-height:200px;width:560px}
@@ -63,6 +64,7 @@ ul.tools-tabs-nav li.current a{color:#000}
 .cgmp-popup-shortcode-dialog .save-dialog{-moz-transition:all 0.218s ease 0;-moz-user-select:none;background-color:#D14836;background-image:0;border:1px solid transparent;border-radius:2px 2px 2px 2px;color:#FFF;cursor:pointer;display:inline-block;font:bold 11px/27px "Arial","Helvetica",sans-serif;height:27px;min-width:54px;padding:0 8px;text-align:center;text-shadow:0 1px rgba(0, 0, 0, 0.1);text-transform:uppercase}
 .cgmp-popup-shortcode-dialog .save-dialog:hover{-moz-border-bottom-colors:none;-moz-border-image:none;-moz-border-left-colors:none;-moz-border-right-colors:none;-moz-border-top-colors:none;background-color:#C53727;background-image:0;border-color:#B0281A #B0281A #AF301F;border-style:solid;border-width:1px;box-shadow:0 1px 1px rgba(0, 0, 0, 0.2);color:#FFF}
 div#inner-shortcode-dialog{-moz-border-radius:7px;-webkit-border-radius:7px;background-color:#fff;border:1px solid gray;border-radius:7px;height:90px;overflow:auto;padding:8px}
+div.loaded-db-shortcodes{-moz-border-radius:7px;-webkit-border-radius:7px;background-color:#efefef;border:1px solid gray;border-radius:7px;height:110px;overflow:auto;padding:8px}
 div.shortcodebuilder fieldset.fieldset table input[type="text"],div.shortcodebuilder fieldset.fieldset table select{width:120px}
 fieldset.fieldset table input.marker-text-details,div.shortcodebuilder fieldset.fieldset table input.marker-text-details{width:88%}
 * html li.token-input-token,* html ul.token-input-list{height:1% !important}
@@ -71,3 +73,26 @@ fieldset.fieldset table input.marker-text-details,div.shortcodebuilder fieldset.
 .cgmp-popup-shortcode-dialog .save-dialog:focus,.cgmp-popup-shortcode-dialog .save-dialog.focus{box-shadow:0 0 0 1px #FFF inset}
 .cgmp-popup-shortcode-dialog .save-dialog:focus:hover,.cgmp-popup-shortcode-dialog .save-dialog.focus:hover{box-shadow:0 0 0 1px #FFF inset, 0 1px 1px rgba(0, 0, 0, 0.1)}
 .cgmp-popup-shortcode-dialog .save-dialog:active,.cgmp-popup-shortcode-dialog .save-dialog:focus:active,.cgmp-popup-shortcode-dialog .save-dialog.focus:active{background-color:#B0281A;background-image:0;border:1px solid #992A1B;box-shadow:0 1px 2px rgba(0, 0, 0, 0.3) inset}
+#wp-admin-bar-cgmp > .ab-item .ab-icon:before {content: url('images/google_map.png');}
+#wp-admin-bar-new-content #wp-admin-bar-cgmp-admin-bar-menu-new-shortcode > .ab-item .ab-icon:before {content: url('images/google_map.png');}
+#comprehensive-google-map-plugin .plugin-version-author-uri {
+    background-color: #EAEAEA;
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 0 8px 6px -6px black;
+    color: #111111;
+    font-weight: bold;
+    margin-bottom: 10px;
+    min-height: 16px;
+    padding: 5px;
+}
+.cgmp-styles-textarea {
+    margin-top: 12px !important;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    width: 100%;
+    padding: 10px;
+    min-height:80px;
+    max-height:250px;
+    resize:vertical;
+}

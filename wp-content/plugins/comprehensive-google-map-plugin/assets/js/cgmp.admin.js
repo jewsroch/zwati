@@ -26,6 +26,12 @@ function sendShortcodeToEditor(container_id) {
 	}(jQueryCgmp));
 }
 
+function confirmShortcodeDelete(url, title) {
+    var r = confirm("Are you sure you want to delete shortcode\n'" + title + "' ?");
+    if (r == true) {
+        window.location.href = url;
+    }
+}
 
 function displayShortcodeInPopup(container_id) {
 	(function ($) {
@@ -125,6 +131,11 @@ function buildShortcode(id, shortcodeId, $) {
             val = val.replace(new RegExp("\\[|\\]", "g"), "");
 		}
 
+        if (role === 'styles') {
+            val = val.replace(/\s+/g, " ");
+            val = base64_encode(val);
+        }
+
 		if ($(this).attr('type') === "checkbox") {
 			val = $(this).is(":checked");
 		}
@@ -172,6 +183,7 @@ function buildShortcode(id, shortcodeId, $) {
     CGMPGlobal.assets = $("object#global-data-placeholder param#assets").val();
     CGMPGlobal.version = $("object#global-data-placeholder param#version").val();
     CGMPGlobal.shortcodes = $("object#global-data-placeholder param#shortcodes").val();
+    CGMPGlobal.ajaxurl = $("object#global-data-placeholder param#ajaxurl").val();
 
 	var lists = [];
 
@@ -254,8 +266,7 @@ function buildShortcode(id, shortcodeId, $) {
 				if ($(targetInput).val() != null && $(targetInput).val() != "" && $(targetInput).val().indexOf("Enter marker") == -1) {
 
 					var target = $(targetInput).val().replace(/^\s+|\s+$/g, '');
-					var chars = new RegExp(/^(?=.*(\d|[a-zA-Z])).{5,}$/);
-					var hasValidChars = chars.test(target);
+					var hasValidChars = (target !== "" && target.length > 1);
 					if (hasValidChars) {
 
 						customBubbleText = CGMPGlobal.sep + customBubbleText;
@@ -398,6 +409,46 @@ function buildShortcode(id, shortcodeId, $) {
 			});
 		}
 
+        function initInsertShortcodeToPostEvent() {
+            var dataName = 'cgmp-find-posts-target';
+            $(document).on("click", "a.insert-shortcode-to-post", function (source) {
+                var shortcodeName = $(this).attr("id");
+                $("div.find-box-search input#affected").val(shortcodeName);
+                $('#find-posts').data(dataName, $(this));
+                findPosts.open();
+
+                $('#find-posts-submit').click(function(e) {
+                    e.preventDefault();
+
+                    // Be nice!
+                    if ( !$('#find-posts').data(dataName)) {
+                        return;
+                    }
+
+                    var selected = $('#find-posts-response').find('input:checked');
+                    if (!selected.length) {
+                        return false;
+                    }
+
+                    var postId = selected.val();
+                    var _ajax_nonce = $("div.find-box-search input#_ajax_nonce").val();
+                    var shortcodeName = $("div.find-box-search input#affected").val();
+
+                    $.post(CGMPGlobal.ajaxurl, {action: 'cgmp_insert_shortcode_to_post_action', postId: postId, shortcodeName: shortcodeName}, function (response) {
+                        console.log("Posting selected post ID#" + postId + " and shortcode name '" + shortcodeName + "' to the server..");
+                        if (response != null && response.length > 1) {
+                            alert("Shortcode '" + shortcodeName + "' was injected into post titled '" + response + "', ID#" + postId);
+                            $('#find-posts-close' ).click();
+                        }
+                    });
+                });
+
+                $('#find-posts-close' ).click(function() {
+                    $('#find-posts').removeData(dataName);
+                });
+            });
+        }
+
 		function checkedGeoMashupOnInit() {
 
 			$.each($("input.marker-geo-mashup"), function() {
@@ -443,6 +494,30 @@ function buildShortcode(id, shortcodeId, $) {
             });
         }
 
+        function initMarkerClusteringEvent() {
+
+            $(document).on("change", "input.marker-clustering", function (source) {
+                var checkboxId = $(this).attr("id");
+
+                if ($(this).is(":checked")) {
+                    $("#" + checkboxId + "hidden").val("true");
+                } else {
+                    $("#" + checkboxId + "hidden").val("false");
+                }
+            });
+        }
+
+        function checkedMarkerClusteringOnInit() {
+            $.each($("input.marker-clustering"), function() {
+                var checkboxId = $(this).attr("id");
+                var hiddenIdVal = $("#" + checkboxId + "hidden").val();
+                if (hiddenIdVal === "true") {
+                    $(this).prop("checked", true);
+                } else {
+                    $(this).removeAttr("checked");
+                }
+            });
+        }
 
 		$(document).ready(function() {
 			initTokenHolders();
@@ -451,9 +526,12 @@ function buildShortcode(id, shortcodeId, $) {
 			initTooltips();
 			initMarkerIconEvents();
             checkedGPSMarkerOnInit();
+            checkedMarkerClusteringOnInit();
             initGPSMarkerEvent();
 			checkedGeoMashupOnInit();
-			initGeoMashupEvent() ;
+			initGeoMashupEvent();
+            initMarkerClusteringEvent();
+            initInsertShortcodeToPostEvent() ;
 
 			if (typeof $("ul.tools-tabs-nav").tabs == "function") {
 				$("ul.tools-tabs-nav").tabs("div.tools-tab-body", {
@@ -472,9 +550,60 @@ function buildShortcode(id, shortcodeId, $) {
                         initTokenHolders();
                         checkedGPSMarkerOnInit();
                         checkedGeoMashupOnInit();
+                        checkedMarkerClusteringOnInit();
                     }
 				}
 			}
 		);
 
 }(jQueryCgmp));
+
+function base64_encode (data) {
+    // From: http://phpjs.org/functions
+    // +   original by: Tyler Akins (http://rumkin.com)
+    // +   improved by: Bayron Guevara
+    // +   improved by: Thunder.m
+    // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+    // +   bugfixed by: Pellentesque Malesuada
+    // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+    // +   improved by: Rafał Kukawski (http://kukawski.pl)
+    // *     example 1: base64_encode('Kevin van Zonneveld');
+    // *     returns 1: 'S2V2aW4gdmFuIFpvbm5ldmVsZA=='
+    // mozilla has this native
+    // - but breaks in 2.0.0.12!
+    //if (typeof this.window['btoa'] === 'function') {
+    //    return btoa(data);
+    //}
+    var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    var o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
+        ac = 0,
+        enc = "",
+        tmp_arr = [];
+
+    if (!data) {
+        return data;
+    }
+
+    do { // pack three octets into four hexets
+        o1 = data.charCodeAt(i++);
+        o2 = data.charCodeAt(i++);
+        o3 = data.charCodeAt(i++);
+
+        bits = o1 << 16 | o2 << 8 | o3;
+
+        h1 = bits >> 18 & 0x3f;
+        h2 = bits >> 12 & 0x3f;
+        h3 = bits >> 6 & 0x3f;
+        h4 = bits & 0x3f;
+
+        // use hexets to index into b64, and append result to encoded string
+        tmp_arr[ac++] = b64.charAt(h1) + b64.charAt(h2) + b64.charAt(h3) + b64.charAt(h4);
+    } while (i < data.length);
+
+    enc = tmp_arr.join('');
+
+    var r = data.length % 3;
+
+    return (r ? enc.slice(0, r - 3) : enc) + '==='.slice(r || 3);
+
+}

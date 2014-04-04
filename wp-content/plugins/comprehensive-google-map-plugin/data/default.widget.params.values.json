@@ -10,6 +10,8 @@
     "directionhint" : "false",
 	"poweredby" : "false",
     "height" : "250",
+    "enablemarkerclusteringhidden" : "false",
+    "styles" : "",
     "kml" : "",
     "language" : "default",
     "latitude" : "",

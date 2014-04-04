@@ -1,10 +1,10 @@
 === Comprehensive Google Map Plugin ===
 Contributors: alexanderzagniotov
-Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CWNZ5P4Z8RTQ8
-Tags: google map, google map widget, jquery tabs, google map short code, google map short code, map widget, map short code, fusion tables, google fusion tables, google fusion queries, fully documented, marker, controls, size, KML, GPX, GeoRSS, location by latitude/longitude, location by address, info window, directions, traffic/bike lanes, cross browser, google maps v3, google, multiple markers, panoramio photos, marker icons, custom marker icons and text, geo, geo mashup, marker geo mashup, custom marker text, openstreetmap
+Donate link: http://goo.gl/yI5j6O
+Tags: google map, google map widget, jquery tabs, clustering, marker clustering, map styles, styling, google map styles, google map short code, google map short code, map widget, map short code, fully documented, marker, controls, size, KML, GPX, GeoRSS, location by latitude/longitude, location by address, info window, directions, traffic/bike lanes, cross browser, google maps v3, google, multiple markers, panoramio photos, marker icons, custom marker icons and text, geo, geo mashup, marker geo mashup, custom marker text, openstreetmap
 Requires at least: 3.6
 Tested up to: 3.8
-Stable tag: 9.0.4.2
+Stable tag: 9.0.20
 
 A simple and intuitive,  yet elegant and fully documented Google map plugin that installs as a widget and a short code.
 
@@ -13,30 +13,22 @@ A simple and intuitive,  yet elegant and fully documented Google map plugin that
 A simple and intuitive, yet elegant and fully documented Google map plugin that installs as a widget and a short code. No limited plugin editions or limited functionality! This is the full version of this free and premium plugin, which comes packed with useful features: 
 
 * Compatible with jQuery tabs! No more poorly rendered map on your site!
-* Intuitive and user friendly interface, which makes it very easy to configure Google map. No complex configuration options. Facebook style interactive interface for managing multiple map markers. OpenStreetMap imagery available
+* Compatible with W3 Total Cache, read the <a href="http://wordpress.org/support/topic/how-to-make-w3-total-cache-plugin-to-play-nicely-together">solution</a>
+* Intuitive and user friendly interface, which makes it very easy to configure Google map. No complex configuration options. OpenStreetMap imagery available
 * With over 250 amazing custom marker icons to choose from!
-* Aggregate all your post markers in one map - Marker Geo Mashup!
-* Help tooltips enabled, which makes your configuration hassle free
+* Aggregate all markers from your published content in one map - Marker Geo Mashup!
+* Dozens of configuration options to choose from, including marker clustering
 * Add end-user's current GPS location to the map! Useful for end-users that want to find directions from their current location to map's markers
-* Google-like directions: driving and walking, distance shown in miles or KM, avoid tolls and highways options, direction print functionality
-* Info window can display marker's street view within itself.
-* Plugin is fully documented. If help tooltips are not enough, you can always refer to the full documentation about each of the settings
-* Shortcode builder available, which integrated with post/page editor. In other words, you do not need
-manually to type the shortcode in the editor, just save the shortcode and it will be available to you (But you can if you want to).
-* The plugin auto generates unique ID for each map. In other words - unlimited maps! You do not need to specify and maintain unique map
-IDs explicitly when dealing with multiple maps on the same post/page.
-* The plugin offers extensive configuration options for Google map marker, controls, size, KML files, location by latitude/longitude, location by address, info windows with custom text, traffic/bike lanes and more!
-* Support for custom overlays: Panoramio photos on the map (http://www.panoramio.com/), bicycle lanes and traffic info.
-* User can get directions to the locations on the map (markers)
+* Fully documented. If help tooltips are not enough, you can always refer to the full documentation about each of the settings
+* Shortcode builder available, which integrates with post/page editor.
+* Insert saved shortcodes directly to posts/pages
 * Widget enabled.
-* Cross browser compatible
-* Loads geographic markup from a KML, GPX, KMZ or GeoRSS files hosted remotely.
 
 If you liked the plugin, you can join the <a href="http://www.facebook.com/pages/Comprehensive-Google-Map-Plugin/180316032076503" target="_blank">Comprehensive Google Map Fan Page</a> on Facebook. 
  
 
 Please note: 
-Although I try my best to release a bug-free code, one or two may slip through. It would be so cool and I would really appreciate it if you would report any bugs to me first at http://initbinder.com/comprehensive-google-map-plugin, before reporting the plugin to be broken. I am quick to respond. 
+Although I try my best to release a bug-free code, one or two may slip through. It would be so cool and I would really appreciate it if you would report any bugs to me first at http://wordpress.org/plugins/comprehensive-google-map-plugin/, before reporting the plugin to be broken. I am quick to respond.
 Thanks!
 
 Licenses:
@@ -63,32 +55,26 @@ Do you have a question or a feature request? Sure, drop me a line here: http://i
 1. Where can I find the short code builder?<br />
 After plugin installation look for the 'Google Map' menu item on the left hand side of your WP admin. The 'Shortcode builder' item is just there. After generating the short code, copy the contents of the popup and paste int your post/page.
 
-2. How fast can you have a look at my bug?<br />
-Well, I always check emails on the go, so my response times are amazingly short and fast. I always try to reply. Having said that, not always I can dive into the code. It can take me up to a few hours when I reach my laptop and Internet connection :)
+2. How to make W3 Total Cache to work with your plugin?
+http://wordpress.org/support/topic/how-to-make-w3-total-cache-plugin-to-play-nicely-together
 
-3. I have dragged/scrolled/pulled my map to a direction, messed up my zoom view, how can I get get all my markers in view again with the original zoom?<br />
-Just click once somewhere on the map
+3. Is your plugin compatible with jQuery Tabs or other tabs?
+Yes
 
-4. The map appears empty with "loading" image or just gray square why is that?
-Please check the following when adding marker locations: 
-[a] In the shortcode builder, did you add marker loaction(s) and clicked the 'Add' button before clicking 'Send to Editor'?
-[b] In the widget, did you add marker loaction(s) and clicked the 'Add' button before clicking 'Save'?
-Please revisit and reconfigure your widget or shortcode configuration. The map requires at least one marker location to be added.
-
-5. Where is plugin documentation?<br />
+4. Where is plugin documentation?<br />
 After plugin activation, look at the left hand side menu of WP admin, look for "Google Map" item
 
-6. Where to find my saved shortcode?<br />
+5. Where to find my saved shortcode?<br />
 Look for little map icon in post/page WYSIWYG editor
 
-7. Do I lose my saved shortcodes after plugin update?<br />
+6. Do I lose my saved shortcodes after plugin update?<br />
 No, they will still be there
 
-8. Whats the correct way to define coordinates?
-You can use one of the following formats:
-[a] N43°38 19.39, W116°14 28.86 (Please note: single quote or apostrophe has been replaced with SPACE and no double quotes)
-[b] 43°38 19.39N, 116°14 28.86W
-[c] 43 38 19.39, -116 14 28.86
+7. Whats the correct way to define coordinates?
+You can use one of the following formats:<br />
+[a] N43°38 19.39, W116°14 28.86 (Please note: single quote or apostrophe has been replaced with SPACE and no double quotes)<br />
+[b] 43°38 19.39N, 116°14 28.86W<br />
+[c] 43 38 19.39, -116 14 28.86<br />
 [d] 43.6387194445, -116.2413513485235
 
 == Screenshots ==
@@ -104,6 +90,81 @@ You can use one of the following formats:
 9. When having marker Geo mashup, you can display in the info bubble marker's original post and post content excerpt instead of normally address and lat/long
 
 == Changelog ==
+
+= 9.0.20 =
+* Bug: PHP warnings
+* Bug: user configured map height was not respected on mobile devices with disabled respective setting
+
+= 9.0.19 =
+* Enhancement: Added marker clustering functionality
+* Enhancement: Corrections in French translation by Marcello Cavallucci
+* Cleanup: Changed the way map data is rendered on the client-side
+* Cleanup: Removed all JS alerts from the client-side in favor of console logging
+* Bug: marker list separator (pipe character |) was cleaned up too much
+
+= 9.0.18 =
+* Enhancement: Added ability to set styles to the generated maps: https://developers.google.com/maps/documentation/javascript/styling
+* Enhancement: JavaScript information in "Support" tab
+* Enhancement: Added a setting to disable plugin admin bar menu
+* Enhancement: Added a setting to enable a full screen map on mobile devices(disabled by default)
+* Bug: When pipe character | was added to marker description, double marker was generated
+
+= 9.0.17 =
+* Enhancement: From "Saved Shortcodes" page it is now possible to inject shortcode into posts directly without entering post "Edit" mode
+* Enhancement: Added WordPress admin bar plugin menu
+
+= 9.0.16 =
+* Enhancement: Added a setting to disable TinyMCE button in post/page WYSIWYG editor that loads saved shortcodes
+* Enhancement: Added a page under "Google Map" menu that shows saved shortcodes if any
+* Bug: Admin scripts were not loaded on the widgets page
+* Bug: PHP warnings
+
+= 9.0.15.2 =
+* Bug: TinyMCE was broken in certain cases
+
+= 9.0.15.1 =
+* Bug: Shortcode builder does not accept non-Latin character set in marker locations
+
+= 9.0.15 =
+* Enhancement: When map is viewed from major mobile devices, setting its DIV's width to 100% and increasing the height
+* Enhancement: Added CSS class handler for map container centering DIV
+* Enhancement: Including custom post types in Geo Mashup
+* Enhancement: Using new style default marker icon when generating maps
+
+= 9.0.14 =
+* Enhancement: Loading admin scripts only on its own admin pages and on post/page editor pages
+* Enhancement: Revisited plugin's TinyMCE JS code
+
+= 9.0.13 =
+* Bug: Fixed zooming when map is resized as a result of jQuery Tabs
+* Enhancement: Code cleanup (Marker shadows were removed in version 3.14 of the Google Maps JavaScript API)
+
+= 9.0.12 =
+* Enhancement: Code cleanup
+
+= 9.0.11 =
+* Enhancement: Documentation update
+
+= 9.0.10 =
+* Bug: User set language was reset before map generation
+
+= 9.0.9 =
+* Enhancement: Added server side caching for custom post types (not 'page' nor 'post')
+
+= 9.0.8 =
+* Enhancement: Not relying anymore on theme-dependant wp_footer function to generate plugin data on the client side
+* Enhancement: Supporting multi-byte addresses (Non-Latin character set)
+
+= 9.0.7 =
+* Bug: JS error in certain cases when server sent map data with empty address
+* Bug: Some markers were skipped from being cached
+
+= 9.0.6 =
+* Enhancement: Revisited how plugin scripts are loaded
+
+= 9.0.5 =
+* Experimental: Dropped server-side Geo validation due to Google's request limit quota per-IP. Doing client side Geo address validation instead with server side caching.
+* Enhancement: Added help message on "Shortcode Builder" page where to find saved shortcodes
 
 = 9.0.4.2 =
 * Enhancement: Documentation update and some code clean up

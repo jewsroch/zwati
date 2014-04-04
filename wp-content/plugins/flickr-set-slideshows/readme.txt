@@ -2,8 +2,8 @@
 Contributors: Dourou
 Tags: flickr, flickr sets, flickr slideshows, flickr photoset slideshows, flickr photosets
 Requires at least: 3.3.0
-Tested up to: 3.5
-Stable tag: 0.6
+Tested up to: 3.8
+Stable tag: 0.7
 License: GPLv2 or later
 
 The quick and easy way to embed native Flickr slideshows of your Flickr photosets in your posts and pages.
@@ -66,6 +66,9 @@ Just send an email to info at majweb dot co dot uk
 4. Slideshow listing and edition page.
 
 == Changelog ==
+
+= 0.7 =
+* cleaned code in delete gallery function
 
 = 0.6 =
 * updated FAQ to accommodate changes in Flickr vocabulary
