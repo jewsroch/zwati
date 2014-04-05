@@ -459,9 +459,10 @@ blockquote p {
 	margin: 0px 0px 10px 0px;
 	}
 .postauthor p {
+    text-align: center;
 	font-size: 12px;
 	padding: 0px;
-	margin: 0px;
+	margin: 10px 0 0 0;
 	}
 .postdate {
 	display: block;
