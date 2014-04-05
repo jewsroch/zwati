@@ -672,7 +672,7 @@ class ITSEC_Tweaks_Admin {
 
 			if ( $server_type === 'nginx' ) { //NGINX rules
 
-				$rules .= "\t# " . __( 'Rules to block access to WordPress specific files and wp-includes', 'it-l10n-better-wp-security' ) . PHP_EOL . "\tlocation ^/xmlrpc.php { deny all; }" . PHP_EOL;
+				$rules .= "\tlocation ~ xmlrpc.php { deny all; }" . PHP_EOL;
 
 			} else { //rules for all other servers
 
@@ -1533,7 +1533,7 @@ class ITSEC_Tweaks_Admin {
 
 		settings_fields( 'security_page_toplevel_page_itsec_settings' );
 
-		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
+		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save All Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
 
 		echo '</p>' . PHP_EOL;
 
@@ -1556,7 +1556,7 @@ class ITSEC_Tweaks_Admin {
 
 		settings_fields( 'security_page_toplevel_page_itsec_settings' );
 
-		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
+		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save All Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
 
 		echo '</p>' . PHP_EOL;
 
@@ -1579,7 +1579,7 @@ class ITSEC_Tweaks_Admin {
 
 		settings_fields( 'security_page_toplevel_page_itsec_settings' );
 
-		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
+		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save All Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
 
 		echo '</p>' . PHP_EOL;
 

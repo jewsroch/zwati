@@ -356,10 +356,9 @@ class ITSEC_Ban_Users_Admin {
 			} elseif ( strlen( $host_list ) > 1 ) {
 
 				$rules .= 'Order allow,deny' . PHP_EOL .
+				          $host_list .
 				          'Deny from env=DenyAccess' . PHP_EOL .
 				          'Allow from all' . PHP_EOL;
-
-				$rules .= $host_list;
 
 			}
 
@@ -563,7 +562,7 @@ class ITSEC_Ban_Users_Admin {
 
 		settings_fields( 'security_page_toplevel_page_itsec_settings' );
 
-		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
+		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save All Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
 
 		echo '</p>' . PHP_EOL;
 
