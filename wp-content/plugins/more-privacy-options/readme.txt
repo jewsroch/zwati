@@ -3,7 +3,7 @@ Contributors: dsader
 Donate link: http://dsader.snowotherway.org
 Tags: visibility, privacy, private blog, multisite, members only, network visibility, site visibility
 Requires at least: 3.7.1
-Tested up to: 3.8.1
+Tested up to: 3.8.2
 Stable tag: Trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -48,7 +48,7 @@ This section describes how to install the plugin and get it working.
 1. Upload entire `more-privacy-options` folder to the `/wp-content/plugins/` directory
 2. Network Activate the plugin through the 'Network Plugins' menu in WordPress
 3. Set multisite "Network Visibility" option at Network-Settings page
-4. Set individual site visibility options at Settings-Privacy page, or...
+4. Set individual site visibility options at Settings-Reading page, or...
 5. Set individual site visibility options at Network Admin-Sites-Edit page
 
 == Frequently Asked Questions ==
@@ -64,9 +64,9 @@ This section describes how to install the plugin and get it working.
 
 == Changelog ==
 
-= 3.8.1.1 =
-* Tested up to: WP 3.8.1, localization ready
+= 3.8.2 =
+* Tested up to: WP 3.8.2, localization ready
 
 == Upgrade Notice ==
-= 3.8.1.1 =
-* Tested up to: WP 3.8.1, localization ready
+= 3.8.2 =
+* Tested up to: WP 3.8.2, localization ready
